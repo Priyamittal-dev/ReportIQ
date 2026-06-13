@@ -8,6 +8,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [form, setForm] = useState({ agencyName: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -23,9 +24,14 @@ export default function SignupPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Signup failed');
-      localStorage.setItem('riq_token', data.accessToken);
-      localStorage.setItem('riq_user', JSON.stringify(data.user));
-      router.push('/dashboard');
+      if (data.requiresVerification) {
+        setSuccessMessage(data.message);
+        setLoading(false);
+      } else {
+        localStorage.setItem('riq_token', data.accessToken);
+        localStorage.setItem('riq_user', JSON.stringify(data.user));
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
@@ -78,8 +84,14 @@ export default function SignupPage() {
                 </div>
               )}
 
-              <button className="btn btn-gradient" type="submit" disabled={loading} style={{ width: '100%', marginTop: 4 }}>
-                {loading ? 'Creating account...' : 'Create free account →'}
+              {successMessage && (
+                <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#10b981' }}>
+                  {successMessage}
+                </div>
+              )}
+
+              <button className="btn btn-gradient" type="submit" disabled={loading || !!successMessage} style={{ width: '100%', marginTop: 4 }}>
+                {loading ? 'Creating account...' : successMessage ? 'Check your email' : 'Create free account →'}
               </button>
 
               <div style={{ textAlign: 'center', borderTop: '1px solid var(--border)', paddingTop: 16 }}>

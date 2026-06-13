@@ -16,6 +16,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { AdminModule } from './admin/admin.module';
+import { AuditLogsModule } from './audit-logs/audit-logs.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AdminModule } from './admin/admin.module';
     SpotlightModule,
     SchedulerModule,
     AdminModule,
+    AuditLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -26,6 +26,13 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Get('verify')
+  @ApiOperation({ summary: 'Verify email token' })
+  verify(@Req() req: any) {
+    const token = req.query.token;
+    return this.authService.verifyEmail(token);
+  }
+
   @Get('google')
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Initiate Google OAuth flow' })

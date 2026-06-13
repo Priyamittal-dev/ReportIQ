@@ -19,7 +19,7 @@ export default function ChatPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('riq_token')}`
         },
         body: JSON.stringify({ message: userMessage })
       });

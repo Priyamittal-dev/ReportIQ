@@ -32,6 +32,20 @@ export class IntegrationsController {
     );
   }
 
+  @Get('google-ads/auth')
+  @ApiOperation({ summary: 'Get Google Ads OAuth URL' })
+  getGoogleAdsAuthUrl() {
+    // In a real app, this generates the Google OAuth URL with proper scopes
+    return { url: 'https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/adwords&response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT' };
+  }
+
+  @Get('meta-ads/auth')
+  @ApiOperation({ summary: 'Get Meta Ads OAuth URL' })
+  getMetaAdsAuthUrl() {
+    // In a real app, this generates the Facebook/Meta OAuth URL
+    return { url: 'https://www.facebook.com/v18.0/dialog/oauth?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT&scope=ads_read' };
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Disconnect an integration' })
   disconnect(@Param('id') id: string, @Req() req: any) {

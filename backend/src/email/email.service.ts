@@ -104,4 +104,37 @@ export class EmailService {
       return { success: true, mock: true, reportUrl };
     }
   }
+
+  async sendVerificationEmail(email: string, token: string) {
+    const frontendUrl = this.config.get('FRONTEND_URL', 'http://localhost:3000');
+    const verifyUrl = `${frontendUrl}/auth/verify?token=${token}`;
+
+    const html = `
+    <!DOCTYPE html>
+    <html>
+    <body>
+      <h2>Verify your ReportIQ Enterprise Account</h2>
+      <p>Please click the link below to verify your email address:</p>
+      <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background:#8a2be2;color:white;text-decoration:none;border-radius:6px;">Verify Email</a>
+      <p>Or copy and paste this link: ${verifyUrl}</p>
+    </body>
+    </html>
+    `;
+
+    if (this.resend && this.config.get('USE_MOCK_EMAIL') !== 'true') {
+      try {
+        await this.resend.emails.send({
+          from: this.config.get('EMAIL_FROM', 'noreply@reportiq.app'),
+          to: email,
+          subject: 'Verify your ReportIQ Account',
+          html,
+        });
+        this.logger.log(`Verification email sent to ${email}`);
+      } catch (err) {
+        this.logger.error('Failed to send verification email: ' + err.message);
+      }
+    } else {
+      this.logger.log(`\n\n=========================================\n[MOCK EMAIL] VERIFICATION LINK FOR ${email}\n${verifyUrl}\n=========================================\n\n`);
+    }
+  }
 }

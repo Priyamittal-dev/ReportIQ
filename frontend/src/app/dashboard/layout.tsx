@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, FileText, Plug, Settings,
-  LogOut, BarChart3, Zap, Menu, X
+  LogOut, BarChart3, Zap, Menu, X, CreditCard
 } from 'lucide-react';
 
 const navItems = [
@@ -13,6 +13,11 @@ const navItems = [
   { href: '/dashboard/reports', icon: FileText, label: 'Reports' },
   { href: '/dashboard/templates', icon: FileText, label: 'Templates Builder' },
   { href: '/dashboard/integrations', icon: Plug, label: 'Integrations' },
+  { href: '/dashboard/chat', icon: Zap, label: 'AI Assistant' },
+  { href: '/dashboard/team', icon: Users, label: 'Team Management' },
+  { href: '/dashboard/audit-logs', icon: FileText, label: 'Audit Logs' },
+  { href: '/dashboard/developer', icon: Settings, label: 'Developer APIs' },
+  { href: '/dashboard/billing', icon: CreditCard, label: 'Billing' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 

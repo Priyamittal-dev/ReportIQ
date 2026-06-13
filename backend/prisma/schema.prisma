@@ -23,6 +23,8 @@ model User {
   accentColor   String   @default("#00e5ff")
   plan          String   @default("STARTER")
   googleId      String?  @unique
+  emailVerified Boolean  @default(false)
+  verificationToken String?
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

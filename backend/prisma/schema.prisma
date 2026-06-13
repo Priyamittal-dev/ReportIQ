@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// =====================
+// USERS / AGENCIES
+// =====================
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String?
+  agencyName    String
+  logo          String?  // Cloudinary URL
+  primaryColor  String   @default("#8a2be2")
+  accentColor   String   @default("#00e5ff")
+  plan          String   @default("STARTER")
+  googleId      String?  @unique
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  clients       Client[]
+  reports       Report[]
+  integrations  Integration[]
+  templates     ReportTemplate[]
+
+  @@index([email])
+  @@map("users")
+}
+
+
+
+// =====================
+// CLIENTS
+// =====================
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  website     String?
+  timezone    String   @default("UTC")
+  notes       String?
+  logoUrl     String?
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  reports     Report[]
+
+  @@index([userId])
+  @@index([email])
+  @@map("clients")
+}
+
+// =====================
+// INTEGRATIONS
+// =====================
+model Integration {
+  id            String          @id @default(uuid())
+  type          String
+  label         String          @default("Connected Account")
+  accessToken   String?
+  refreshToken  String?
+  propertyId    String?         // GA4 property ID
+  accountId     String?         // Meta account ID
+  expiresAt     DateTime?
+  isActive      Boolean         @default(true)
+  metadata      String?         // Store extra config
+  
+  userId        String
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([userId])
+  @@map("integrations")
+}
+
+
+
+// =====================
+// REPORTS
+// =====================
+model Report {
+  id          String        @id @default(uuid())
+  title       String
+  status      String  @default("DRAFT")
+  publicSlug  String        @unique @default(uuid())
+  isPublic    Boolean       @default(false)
+  
+  // AI Generated
+  aiSummary   String?
+  aiInsights  String?         // Array of insight strings
+  
+  // Report data
+  metricsData String?         // Raw metrics: sessions, conversions, etc.
+  period      String?       // e.g. "2024-05-01 to 2024-05-31"
+  
+  // PDF
+  pdfUrl      String?       // Cloudinary URL to stored PDF
+  
+  // Scheduling
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  templateId  String?
+  template    ReportTemplate? @relation(fields: [templateId], references: [id])
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([publicSlug])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("reports")
+}
+
+
+
+// =====================
+// REPORT TEMPLATES
+// =====================
+model ReportTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  sections    String     // Array of section configs (traffic, conversions, etc.)
+  isDefault   Boolean  @default(false)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  reports     Report[]
+
+  @@index([userId])
+  @@map("report_templates")
+}
+
+// =====================
+// SCHEDULED REPORTS
+// =====================
+model ReportSchedule {
+  id          String         @id @default(uuid())
+  frequency   String
+  dayOfWeek   Int?           // 0-6 for weekly (0=Sunday)
+  dayOfMonth  Int?           // 1-31 for monthly
+  hour        Int            @default(9) // Hour in UTC to send
+  isActive    Boolean        @default(true)
+  
+  userId      String
+  clientId    String
+  templateId  String?
+  
+  lastRunAt   DateTime?
+  nextRunAt   DateTime?
+  
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([nextRunAt])
+  @@map("report_schedules")
+}
+
+
+
+// =====================
+// AUDIT LOG (Kafka events persisted)
+// =====================
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
+}

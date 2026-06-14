@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, FileText, Plug, Settings,
-  LogOut, BarChart3, Zap, Menu, X, CreditCard
+  LogOut, BarChart3, Zap, Menu, X, CreditCard, Shield
 } from 'lucide-react';
+import OnboardingTour from './OnboardingTour';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
@@ -21,6 +22,7 @@ const navItems = [
   { href: '/dashboard/developer', icon: Settings, label: 'Developer APIs' },
   { href: '/dashboard/billing', icon: CreditCard, label: 'Billing' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
+  { href: '/admin', icon: Shield, label: 'Admin Panel' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -28,6 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('riq_token');
@@ -37,6 +40,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
     const stored = localStorage.getItem('riq_user');
     if (stored) setUser(JSON.parse(stored));
+
+    // Show onboarding if first time
+    if (!localStorage.getItem('riq_onboarding_done')) {
+      setShowOnboarding(true);
+    }
   }, []);
 
   const logout = () => {
@@ -124,6 +132,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {children}
       </main>
+
+      {/* Onboarding Tour for new users */}
+      {showOnboarding && (
+        <OnboardingTour onComplete={() => setShowOnboarding(false)} />
+      )}
     </div>
   );
 }

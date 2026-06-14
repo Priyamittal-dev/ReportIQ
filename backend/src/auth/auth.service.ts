@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignupDto, LoginDto } from './dto/auth.dto';
 import { EmailService } from '../email/email.service';
-import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +28,7 @@ export class AuthService {
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 12);
-    const verificationToken = uuidv4();
+    const verificationToken = crypto.randomUUID();
 
     const user = await this.prisma.user.create({
       data: { 

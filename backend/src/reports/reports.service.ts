@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
-import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 
 const MOCK_REPORTS = [
   {
@@ -159,7 +159,7 @@ export class ReportsService {
         },
       })
       .catch(() => ({
-        id: 'mock-' + uuidv4(),
+        id: 'mock-' + crypto.randomUUID(),
         title: reportTitle,
         status: 'READY',
         publicSlug: 'demo-' + Date.now(),

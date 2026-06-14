@@ -37,17 +37,36 @@ export class ReportsController {
   generate(
     @Body()
     body: {
-      clientId: string;
-      metricsData: any;
+      clientId?: string;
+      clientName?: string;
+      metricsData?: any;
+      dateRange?: string;
+      sections?: string[];
       title?: string;
     },
     @Req() req: any,
   ) {
+    const metricsData = body.metricsData || {
+      sessions: Math.floor(Math.random() * 5000) + 1000,
+      pageViews: Math.floor(Math.random() * 15000) + 3000,
+      conversions: Math.floor(Math.random() * 200) + 50,
+      conversionRate: +(Math.random() * 3 + 1.5).toFixed(2),
+      bounceRate: +(Math.random() * 20 + 30).toFixed(1),
+      avgSessionDuration: `${Math.floor(Math.random() * 4) + 1}m ${Math.floor(Math.random() * 50) + 10}s`,
+      period: body.dateRange || 'This Month',
+      trafficSources: [
+        { source: 'Organic Search', percentage: 55 },
+        { source: 'Direct', percentage: 20 },
+        { source: 'Social', percentage: 15 },
+        { source: 'Referral', percentage: 10 },
+      ],
+    };
+
     return this.reportsService.generate(
       req.user.id,
-      body.clientId,
-      body.metricsData,
-      body.title,
+      body.clientId || 'demo-client',
+      metricsData,
+      body.title || (body.clientName ? `${body.clientName} — Report` : undefined),
     );
   }
 }

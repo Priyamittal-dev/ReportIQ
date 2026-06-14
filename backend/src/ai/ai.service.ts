@@ -115,7 +115,7 @@ Return JSON format:
 
   async chat(message: string): Promise<string> {
     if (!this.openai || this.config.get('USE_MOCK_AI') === 'true') {
-      return "I'm your mock AI assistant! To use the real OpenAI, make sure your API key is set and USE_MOCK_AI is false.";
+      return this.localChat(message);
     }
 
     try {
@@ -131,7 +131,39 @@ Return JSON format:
       return response.choices[0].message.content || 'No response generated.';
     } catch (error) {
       this.logger.error('OpenAI chat error: ' + error.message);
-      return "Sorry, I couldn't process that request at the moment due to an API error.";
+      // Gracefully fall back to local chat instead of erroring out
+      return this.localChat(message);
     }
+  }
+
+  private localChat(message: string): string {
+    const msg = message.toLowerCase();
+
+    if (msg.includes('report') && (msg.includes('create') || msg.includes('generate') || msg.includes('make'))) {
+      return "To generate a report, go to **Reports** in the sidebar and click **Generate Report**. Select a client, choose your date range, and I'll create an AI-powered performance summary with actionable insights. You can then share the report via a public link or export it as PDF.";
+    }
+    if (msg.includes('client') && (msg.includes('add') || msg.includes('create') || msg.includes('new'))) {
+      return "To add a new client, navigate to **Clients** in the sidebar and click the **Add Client** button. Fill in their name, email, website, and timezone. Once added, you can start generating reports and tracking their performance.";
+    }
+    if (msg.includes('integration') || msg.includes('connect') || msg.includes('google ads') || msg.includes('meta ads')) {
+      return "You can connect data sources in the **Integrations** section. We support Google Ads, Meta Ads, Google Analytics, and custom data sources. Click **Connect** next to any provider and follow the OAuth flow to authorize access to your client's data.";
+    }
+    if (msg.includes('seo') || msg.includes('search engine') || msg.includes('organic')) {
+      return "For SEO analysis, I recommend tracking these key metrics:\n\n1. **Organic Traffic** — Monitor session trends over time\n2. **Keyword Rankings** — Track your top 20 keywords weekly\n3. **Bounce Rate** — Aim for under 40% for content pages\n4. **Core Web Vitals** — LCP, FID, and CLS scores\n5. **Backlink Profile** — Quality over quantity\n\nUse the **Competitor Scraper** tool to analyze competitor websites and find content gaps.";
+    }
+    if (msg.includes('conversion') || msg.includes('cro') || msg.includes('optimize')) {
+      return "Here are proven CRO strategies:\n\n1. **A/B test CTAs** — Try different colors, copy, and placement\n2. **Simplify forms** — Reduce fields to the essentials\n3. **Add social proof** — Testimonials and trust badges\n4. **Speed optimization** — Every 1s delay reduces conversions by 7%\n5. **Mobile-first design** — 68%+ of traffic is mobile\n\nYour current conversion rate benchmark is 2.5-3.5% for most industries.";
+    }
+    if (msg.includes('template') || msg.includes('dashboard')) {
+      return "ReportIQ offers customizable report templates. Go to **Templates Builder** to create or modify templates. You can drag and drop widgets, customize colors to match your client's brand, and save templates for reuse across multiple clients.";
+    }
+    if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
+      return "Hello! 👋 I'm your ReportIQ AI assistant. I can help you with:\n\n• **Creating reports** for your clients\n• **Marketing strategy** advice (SEO, PPC, Social)\n• **Data analysis** and performance insights\n• **Platform guidance** — how to use ReportIQ features\n\nWhat would you like help with?";
+    }
+    if (msg.includes('help') || msg.includes('what can you do')) {
+      return "I can help you with:\n\n📊 **Reports** — Generate, customize, and schedule automated reports\n👥 **Clients** — Manage your client portfolio\n🔗 **Integrations** — Connect Google Ads, Meta Ads, GA4\n🔍 **SEO Analysis** — Keyword research, competitor analysis\n📈 **Performance** — Campaign optimization tips\n🛠️ **Platform** — Navigate ReportIQ features\n\nJust ask me anything!";
+    }
+
+    return `Great question! Here's what I can tell you about "${message}":\n\nAs a marketing analytics platform, ReportIQ helps agencies streamline their reporting workflow. I can assist with report generation, client management, SEO analysis, conversion optimization, and more.\n\nTry asking me specific questions like:\n• "How do I create a report?"\n• "Tips for improving conversion rates"\n• "How to connect Google Ads?"`;
   }
 }

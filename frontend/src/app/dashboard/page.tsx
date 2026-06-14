@@ -1,14 +1,18 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Users, FileText, Send, Clock, ArrowUpRight } from 'lucide-react';
+import { Users, FileText, Send, Clock, ArrowUpRight, Zap, Plug, BarChart3, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardOverview() {
   const [stats, setStats] = useState({ clientCount: 0, reportCount: 0, sentCount: 0, hoursSaved: 0 });
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    const stored = localStorage.getItem('riq_user');
+    if (stored) setUser(JSON.parse(stored));
+
     const fetchDashboard = async () => {
       try {
         const token = localStorage.getItem('riq_token');
@@ -22,7 +26,7 @@ export default function DashboardOverview() {
         if (statsRes.ok) setStats(await statsRes.json());
         if (reportsRes.ok) {
           const data = await reportsRes.json();
-          setReports(data.slice(0, 5)); // Just recent 5
+          setReports(data.slice(0, 5));
         }
       } catch (err) {
         console.error('Failed to load dashboard', err);
@@ -33,11 +37,33 @@ export default function DashboardOverview() {
     fetchDashboard();
   }, []);
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
   return (
     <div>
-      <div className="page-header">
-        <h1 className="page-title">Overview</h1>
-        <p className="page-subtitle">Welcome to your agency command center.</p>
+      {/* Welcome Banner */}
+      <div style={{
+        padding: '32px 40px',
+        background: 'linear-gradient(135deg, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.08) 50%, rgba(16,185,129,0.06) 100%)',
+        borderBottom: '1px solid var(--border)',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>
+              {greeting}, {user?.agencyName || 'there'}! 👋
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>Here's what's happening with your agency today.</p>
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <Link href="/dashboard/clients" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Plus size={16} /> Add Client
+            </Link>
+            <Link href="/dashboard/reports/generate" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Zap size={16} /> Generate Report
+            </Link>
+          </div>
+        </div>
       </div>
 
       <div className="page-body">

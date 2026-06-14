@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClientDto, UpdateClientDto } from './dto/client.dto';
-import { v4 as uuidv4 } from 'uuid';
+import * as crypto from 'crypto';
 
 const MOCK_CLIENTS = [
   {
@@ -84,7 +84,7 @@ export class ClientsService {
         data: { ...dto, userId },
       })
       .catch(() => ({
-        id: 'mock-' + uuidv4(),
+        id: 'mock-' + crypto.randomUUID(),
         ...dto,
         userId,
         createdAt: new Date(),

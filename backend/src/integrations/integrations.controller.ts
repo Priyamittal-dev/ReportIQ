@@ -34,16 +34,34 @@ export class IntegrationsController {
 
   @Get('google-ads/auth')
   @ApiOperation({ summary: 'Get Google Ads OAuth URL' })
-  getGoogleAdsAuthUrl() {
-    // In a real app, this generates the Google OAuth URL with proper scopes
-    return { url: 'https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/adwords&response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT' };
+  getGoogleAdsAuthUrl(@Req() req: any) {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const redirectUri = `${process.env.FRONTEND_URL}/dashboard/integrations/callback/google`;
+    const scope = encodeURIComponent('https://www.googleapis.com/auth/adwords');
+    const url = `https://accounts.google.com/o/oauth2/v2/auth?scope=${scope}&response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&access_type=offline&prompt=consent`;
+    return { url };
+  }
+
+  @Post('google-ads/callback')
+  @ApiOperation({ summary: 'Handle Google Ads OAuth callback' })
+  handleGoogleAdsCallback(@Body() body: { code: string }, @Req() req: any) {
+    return this.integrationsService.exchangeGoogleCode(req.user.id, body.code);
   }
 
   @Get('meta-ads/auth')
   @ApiOperation({ summary: 'Get Meta Ads OAuth URL' })
-  getMetaAdsAuthUrl() {
-    // In a real app, this generates the Facebook/Meta OAuth URL
-    return { url: 'https://www.facebook.com/v18.0/dialog/oauth?client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT&scope=ads_read' };
+  getMetaAdsAuthUrl(@Req() req: any) {
+    const clientId = process.env.META_CLIENT_ID;
+    const redirectUri = `${process.env.FRONTEND_URL}/dashboard/integrations/callback/meta`;
+    const scope = 'ads_read,read_insights';
+    const url = `https://www.facebook.com/v18.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
+    return { url };
+  }
+
+  @Post('meta-ads/callback')
+  @ApiOperation({ summary: 'Handle Meta Ads OAuth callback' })
+  handleMetaAdsCallback(@Body() body: { code: string }, @Req() req: any) {
+    return this.integrationsService.exchangeMetaCode(req.user.id, body.code);
   }
 
   @Delete(':id')

@@ -16,6 +16,8 @@ const navItems = [
   { href: '/dashboard/chat', icon: Zap, label: 'AI Assistant' },
   { href: '/dashboard/team', icon: Users, label: 'Team Management' },
   { href: '/dashboard/audit-logs', icon: FileText, label: 'Audit Logs' },
+  { href: '/dashboard/tools/scraper', icon: Zap, label: 'Competitor Scraper' },
+  { href: '/dashboard/docs', icon: FileText, label: 'Knowledge Base' },
   { href: '/dashboard/developer', icon: Settings, label: 'Developer APIs' },
   { href: '/dashboard/billing', icon: CreditCard, label: 'Billing' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },

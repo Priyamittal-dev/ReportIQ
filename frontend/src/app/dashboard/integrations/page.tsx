@@ -38,7 +38,7 @@ export default function IntegrationsPage() {
       desc: 'Import ad spend, CPC, and campaign performance.',
       icon: <Globe size={24} color="#3b82f6" />,
       color: 'rgba(59,130,246,0.1)',
-      connected: false
+      connected: integrations.some(i => i.type === 'GOOGLE_ADS')
     },
     {
       id: 'meta',
@@ -46,15 +46,35 @@ export default function IntegrationsPage() {
       desc: 'Sync Facebook & Instagram ad metrics.',
       icon: <MessageCircle size={24} color="#1877f2" />,
       color: 'rgba(24,119,242,0.1)',
-      connected: false
+      connected: integrations.some(i => i.type === 'META_ADS')
     }
   ];
 
-  const handleConnect = (id: string) => {
+  const handleConnect = async (id: string) => {
     if (id === 'ga4') {
       alert('In a real app, this would trigger the Google OAuth flow for Analytics access.');
-    } else {
-      alert('This integration is coming soon!');
+    } else if (id === 'gads') {
+      try {
+        const token = localStorage.getItem('riq_token');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/google-ads/auth`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+      } catch (err) {
+        console.error(err);
+      }
+    } else if (id === 'meta') {
+      try {
+        const token = localStorage.getItem('riq_token');
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/meta-ads/auth`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.url) window.location.href = data.url;
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 

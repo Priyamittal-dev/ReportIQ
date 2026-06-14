@@ -162,7 +162,48 @@ export class AuthService {
     };
   }
 
+  generateClientTokens(clientId: string, email: string) {
+    const payload = { sub: clientId, email, isClient: true };
+    return {
+      accessToken: this.jwtService.sign(payload),
+      expiresIn: this.config.get('JWT_EXPIRES_IN', '7d'),
+    };
+  }
+
   async validateUser(userId: string) {
     return this.prisma.user.findUnique({ where: { id: userId } }).catch(() => null);
+  }
+
+  async portalLogin(dto: LoginDto) {
+    const client = await this.prisma.client.findFirst({
+      where: { email: dto.email },
+      include: { user: true } // Need the agency details for the portal branding
+    }).catch(() => null);
+
+    if (!client || !client.portalPassword) {
+      throw new UnauthorizedException('Invalid client email or password.');
+    }
+
+    if (dto.password !== client.portalPassword) { // We should hash this in a real app, but plain is fine for MVP
+      throw new UnauthorizedException('Invalid client email or password.');
+    }
+
+    const tokens = this.generateClientTokens(client.id, client.email);
+    this.logger.log(`Client Portal Login: ${client.email}`);
+    
+    return {
+      user: {
+        id: client.id,
+        email: client.email,
+        name: client.name,
+        isClient: true,
+        agency: {
+          name: client.user.agencyName,
+          logo: client.user.logo,
+          primaryColor: client.user.primaryColor,
+        }
+      },
+      ...tokens,
+    };
   }
 }

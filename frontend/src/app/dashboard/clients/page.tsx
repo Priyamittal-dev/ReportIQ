@@ -10,7 +10,7 @@ export default function ClientsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [form, setForm] = useState({ name: '', email: '', website: '', timezone: 'UTC', notes: '' });
+  const [form, setForm] = useState({ name: '', email: '', website: '', timezone: 'UTC', notes: '', portalPassword: '' });
 
   const fetchClients = async () => {
     try {
@@ -51,7 +51,7 @@ export default function ClientsPage() {
       
       // Close modal and refresh list
       setIsModalOpen(false);
-      setForm({ name: '', email: '', website: '', timezone: 'UTC', notes: '' });
+      setForm({ name: '', email: '', website: '', timezone: 'UTC', notes: '', portalPassword: '' });
       fetchClients();
       
     } catch (err: any) {
@@ -143,6 +143,11 @@ export default function ClientsPage() {
               <div className="form-group">
                 <label className="form-label">Website URL</label>
                 <input type="url" className="form-input" value={form.website} onChange={e => setForm({...form, website: e.target.value})} placeholder="https://acmecorp.com" />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Client Portal Password</label>
+                <input type="text" className="form-input" value={form.portalPassword} onChange={e => setForm({...form, portalPassword: e.target.value})} placeholder="Optional: To give client access to their portal" />
               </div>
               
               <div className="form-group">

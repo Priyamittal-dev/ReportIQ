@@ -51,6 +51,7 @@ model Client {
   timezone    String   @default("UTC")
   notes       String?
   logoUrl     String?
+  portalPassword String?  // For Client Portal login
   
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)

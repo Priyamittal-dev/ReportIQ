@@ -24,6 +24,11 @@ export class CreateClientDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiPropertyOptional({ example: 'secret123' })
+  @IsOptional()
+  @IsString()
+  portalPassword?: string;
 }
 
 export class UpdateClientDto {
@@ -51,4 +56,9 @@ export class UpdateClientDto {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  portalPassword?: string;
 }

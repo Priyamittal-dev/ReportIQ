@@ -26,6 +26,13 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Post('portal/login')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Client portal login' })
+  portalLogin(@Body() dto: LoginDto) {
+    return this.authService.portalLogin(dto);
+  }
+
   @Get('verify')
   @ApiOperation({ summary: 'Verify email token' })
   verify(@Req() req: any) {

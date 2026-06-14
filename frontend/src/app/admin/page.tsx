@@ -32,6 +32,31 @@ export default function AdminDashboard() {
     { type: 'signup', message: 'New agency registered', detail: 'Digital Spark Labs', time: '3h ago', icon: <Users size={14} /> },
   ]);
 
+  const [users, setUsers] = useState<any[]>([]);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/users`);
+      if (res.ok) setUsers(await res.json());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const updateUser = async (id: string, updates: any) => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      fetchUsers();
+      fetchData(); // Refresh overall stats
+    } catch (e) {
+      alert('Failed to update user');
+    }
+  };
+
   const fetchData = async () => {
     setRefreshing(true);
     try {
@@ -47,7 +72,10 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    fetchData(); 
+    fetchUsers();
+  }, []);
 
   const kpiCards = [
     { title: 'Total Users', value: stats.stats?.[0]?.value || '—', change: '+12%', trend: 'up', icon: <Users size={22} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },
@@ -236,19 +264,64 @@ export default function AdminDashboard() {
           <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 24 }}>User Management</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 32 }}>
             <div style={{ padding: 20, background: 'rgba(59,130,246,0.05)', borderRadius: 12, border: '1px solid rgba(59,130,246,0.1)', textAlign: 'center' }}>
-              <div style={{ fontSize: 32, fontWeight: 800, color: '#3b82f6' }}>{recentUsers.length}</div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: '#3b82f6' }}>{users.length}</div>
               <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Total Users</div>
             </div>
             <div style={{ padding: 20, background: 'rgba(16,185,129,0.05)', borderRadius: 12, border: '1px solid rgba(16,185,129,0.1)', textAlign: 'center' }}>
-              <div style={{ fontSize: 32, fontWeight: 800, color: '#10b981' }}>{recentUsers.filter(u => u.plan).length}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Active Plans</div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: '#10b981' }}>{users.filter(u => u.plan === 'PRO' || u.plan === 'AGENCY').length}</div>
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Paid Plans</div>
             </div>
             <div style={{ padding: 20, background: 'rgba(245,158,11,0.05)', borderRadius: 12, border: '1px solid rgba(245,158,11,0.1)', textAlign: 'center' }}>
-              <div style={{ fontSize: 32, fontWeight: 800, color: '#f59e0b' }}>{recentUsers.filter(u => !u.isEmailVerified).length}</div>
+              <div style={{ fontSize: 32, fontWeight: 800, color: '#f59e0b' }}>{users.filter(u => !u.emailVerified).length}</div>
               <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>Unverified</div>
             </div>
           </div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 14 }}>Full user management with search, filters, role assignment, impersonation, and ban/suspend actions is coming in the next release.</p>
+          
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 24 }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>User / Agency</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Status</th>
+                <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Plan</th>
+                <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Clients / Reports</th>
+                <th style={{ padding: '12px 16px', textAlign: 'right', fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(u => (
+                <tr key={u.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <td style={{ padding: '16px' }}>
+                    <div style={{ fontWeight: 600, fontSize: 14 }}>{u.agencyName || 'Unnamed'}</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{u.email}</div>
+                  </td>
+                  <td style={{ padding: '16px' }}>
+                    {u.emailVerified ? 
+                      <span style={{ color: '#10b981', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle size={14}/> Verified</span> : 
+                      <span style={{ color: '#f59e0b', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}><AlertTriangle size={14}/> Pending</span>
+                    }
+                  </td>
+                  <td style={{ padding: '16px' }}>
+                    <select 
+                      value={u.plan} 
+                      onChange={e => updateUser(u.id, { plan: e.target.value })}
+                      style={{ padding: '4px 8px', borderRadius: 6, background: 'var(--bg-2)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 13 }}
+                    >
+                      <option value="STARTER">Starter</option>
+                      <option value="PRO">Pro</option>
+                      <option value="AGENCY">Agency</option>
+                    </select>
+                  </td>
+                  <td style={{ padding: '16px', textAlign: 'center', fontSize: 14, color: 'var(--text-secondary)' }}>
+                    {u._count.clients} / {u._count.reports}
+                  </td>
+                  <td style={{ padding: '16px', textAlign: 'right' }}>
+                    <button className="btn btn-secondary btn-sm" style={{ marginRight: 8 }}>Login As</button>
+                    <button onClick={() => updateUser(u.id, { emailVerified: true })} className="btn btn-secondary btn-sm">Verify</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 

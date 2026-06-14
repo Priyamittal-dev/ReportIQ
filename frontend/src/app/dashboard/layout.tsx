@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, FileText, Plug, Settings,
-  LogOut, BarChart3, Zap, Menu, X, CreditCard, Shield
+  LogOut, BarChart3, Zap, Menu, X, CreditCard, Shield, Clock
 } from 'lucide-react';
 import OnboardingTour from './OnboardingTour';
 
@@ -31,6 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [user, setUser] = useState<any>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('riq_token');
@@ -45,6 +46,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!localStorage.getItem('riq_onboarding_done')) {
       setShowOnboarding(true);
     }
+
+    // Check maintenance mode
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.maintenanceMode) setMaintenanceMode(true);
+      })
+      .catch(() => {});
   }, []);
 
   const logout = () => {
@@ -52,6 +61,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     localStorage.removeItem('riq_user');
     router.push('/');
   };
+
+  // If maintenance mode is active AND user is not on the admin page, show maintenance screen
+  if (maintenanceMode && !pathname.startsWith('/admin')) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-0)', textAlign: 'center', padding: 40 }}>
+        <div style={{ width: 80, height: 80, borderRadius: 20, background: 'rgba(239,68,68,0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+          <Shield size={40} />
+        </div>
+        <h1 style={{ fontSize: 32, fontWeight: 800, marginBottom: 16 }}>System Under Maintenance</h1>
+        <p style={{ color: 'var(--text-secondary)', fontSize: 16, maxWidth: 500, lineHeight: 1.6, marginBottom: 32 }}>
+          We are currently performing scheduled maintenance to upgrade our systems. 
+          ReportIQ will be back online shortly. We apologize for the inconvenience!
+        </p>
+        <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ padding: '12px 24px' }}>
+          Check Status
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -97,10 +125,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             </div>
           )}
-          <button onClick={logout} className="sidebar-nav-item" style={{ color: 'var(--accent-red)' }}>
-            <LogOut size={16} />
-            Log out
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <button 
+              onClick={() => {
+                localStorage.removeItem('riq_onboarding_done');
+                window.location.reload();
+              }} 
+              className="sidebar-nav-item" 
+              style={{ color: 'var(--text-secondary)' }}
+            >
+              <FileText size={16} />
+              Restart Tour
+            </button>
+            <button onClick={logout} className="sidebar-nav-item" style={{ color: 'var(--accent-red)' }}>
+              <LogOut size={16} />
+              Log out
+            </button>
+          </div>
         </div>
       </aside>
 

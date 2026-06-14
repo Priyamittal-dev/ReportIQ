@@ -18,6 +18,10 @@ import { AppService } from './app.service';
 import { AdminModule } from './admin/admin.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { ScraperModule } from './scraper/scraper.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { MaintenanceGuard } from './common/guards/maintenance.guard';
 
 @Module({
   imports: [
@@ -37,8 +41,19 @@ import { ScraperModule } from './scraper/scraper.module';
     AdminModule,
     AuditLogsModule,
     ScraperModule,
+    WhatsappModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: MaintenanceGuard,
+    },
+  ],
 })
 export class AppModule {}

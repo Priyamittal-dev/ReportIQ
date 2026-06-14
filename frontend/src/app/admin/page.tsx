@@ -13,6 +13,7 @@ export default function AdminDashboard() {
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
 
   // System health simulation
   const [systemHealth] = useState({
@@ -57,6 +58,33 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchConfig = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/config`);
+      if (res.ok) {
+        const data = await res.json();
+        setMaintenanceMode(data.maintenanceMode);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleMaintenanceMode = async () => {
+    const newValue = !maintenanceMode;
+    setMaintenanceMode(newValue);
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/config`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maintenanceMode: newValue })
+      });
+    } catch (e) {
+      alert('Failed to update config');
+      setMaintenanceMode(!newValue); // revert
+    }
+  };
+
   const fetchData = async () => {
     setRefreshing(true);
     try {
@@ -64,6 +92,7 @@ export default function AdminDashboard() {
       const data = await res.json();
       setStats(data);
       if (data.recentUsers) setRecentUsers(data.recentUsers);
+      await fetchConfig();
     } catch (e) {
       console.error('Failed to load admin stats', e);
     } finally {
@@ -336,7 +365,12 @@ export default function AdminDashboard() {
             <div>
               <label style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, display: 'block' }}>Maintenance Mode</label>
               <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', fontSize: 14, color: 'var(--text-secondary)' }}>
-                <input type="checkbox" style={{ width: 20, height: 20, accentColor: 'var(--accent)' }} />
+                <input 
+                  type="checkbox" 
+                  checked={maintenanceMode}
+                  onChange={toggleMaintenanceMode}
+                  style={{ width: 20, height: 20, accentColor: 'var(--accent)' }} 
+                />
                 Enable maintenance mode (locks out non-admin users)
               </label>
             </div>

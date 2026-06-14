@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, FileText, BarChart2, TrendingUp, Calendar, ChevronRight } from 'lucide-react';
+import { LogOut, FileText, BarChart2, TrendingUp, Calendar, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { TrafficLineChart } from '@/components/widgets/TrafficLineChart';
 
@@ -99,6 +99,33 @@ export default function PortalDashboard() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* AI Predictive Forecasting (Pillar 4) */}
+        <div className="card" style={{ padding: 32, marginBottom: 32, background: 'linear-gradient(145deg, rgba(15,22,40,0.95), rgba(138,43,226,0.1))', border: '1px solid var(--border-accent)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Sparkles size={18} />
+            </div>
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>AI Predictive Forecast (Day 30)</h3>
+          </div>
+          <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 24 }}>
+            Based on your current pacing (Day 14 of 30), ReportIQ's predictive engine estimates you will exceed your monthly traffic goal by <strong>12%</strong>. Cost per acquisition is trending downwards and is expected to stabilize at <strong>$39.50</strong> by month's end.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            <div style={{ padding: 16, background: 'rgba(0,0,0,0.2)', borderRadius: 12 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>Forecasted Traffic</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>260,000</div>
+            </div>
+            <div style={{ padding: 16, background: 'rgba(0,0,0,0.2)', borderRadius: 12 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>Forecasted Leads</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--accent-green)' }}>8,100</div>
+            </div>
+            <div style={{ padding: 16, background: 'rgba(0,0,0,0.2)', borderRadius: 12 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600, marginBottom: 4 }}>Forecasted CPA</div>
+              <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>$39.50</div>
+            </div>
+          </div>
         </div>
 
         {/* Live Chart */}

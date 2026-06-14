@@ -173,6 +173,43 @@ export default function DashboardOverview() {
             </table>
           )}
         </div>
+
+        {/* Global Client Leaderboard (Pillar 1) */}
+        <div className="card" style={{ padding: 0, overflow: 'hidden', marginTop: 40 }}>
+          <div style={{ padding: '24px 24px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 600 }}>Client Performance Leaderboard (Top 3)</h3>
+          </div>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>MoM Traffic Growth</th>
+                <th>MoM Conv. Growth</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Acme Corp</td>
+                <td style={{ color: 'var(--accent-green)', fontWeight: 600 }}><ArrowUpRight size={14} style={{ verticalAlign: 'middle' }}/> 14.5%</td>
+                <td style={{ color: 'var(--accent-green)', fontWeight: 600 }}><ArrowUpRight size={14} style={{ verticalAlign: 'middle' }}/> 8.2%</td>
+                <td><span className="badge badge-sent">Growing</span></td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>TechFlow Software</td>
+                <td style={{ color: 'var(--accent-green)', fontWeight: 600 }}><ArrowUpRight size={14} style={{ verticalAlign: 'middle' }}/> 5.1%</td>
+                <td style={{ color: 'var(--text-muted)' }}>0.0%</td>
+                <td><span className="badge badge-ready">Stable</span></td>
+              </tr>
+              <tr>
+                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Local Coffee Co</td>
+                <td style={{ color: 'var(--accent-red)', fontWeight: 600 }}><ArrowUpRight size={14} style={{ verticalAlign: 'middle', transform: 'rotate(90deg)' }}/> -2.4%</td>
+                <td style={{ color: 'var(--accent-red)', fontWeight: 600 }}><ArrowUpRight size={14} style={{ verticalAlign: 'middle', transform: 'rotate(90deg)' }}/> -4.1%</td>
+                <td><span className="badge badge-failed">At Risk</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

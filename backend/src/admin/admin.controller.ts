@@ -45,4 +45,19 @@ export class AdminController {
       data: { plan: data.plan, emailVerified: data.emailVerified }
     });
   }
+
+  @Get('config')
+  getConfig() {
+    return {
+      maintenanceMode: global.maintenanceMode || false
+    };
+  }
+
+  @Put('config')
+  updateConfig(@Body() body: any) {
+    if (body.maintenanceMode !== undefined) {
+      global.maintenanceMode = body.maintenanceMode;
+    }
+    return { success: true, maintenanceMode: global.maintenanceMode };
+  }
 }

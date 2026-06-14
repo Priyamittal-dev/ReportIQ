@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { ArrowUpRight, ArrowDownRight, Sparkles, Download, BarChart2 } from 'lucide-react';
 import Link from 'next/link';
 import { TrafficLineChart } from '@/components/widgets/TrafficLineChart';
@@ -13,7 +13,8 @@ const DEFAULT_LAYOUT = [
   { id: 'w-chart-1', type: 'traffic-chart', title: 'Traffic Over Time' },
 ];
 
-export default function PublicReportPage({ params }: { params: { slug: string } }) {
+export default function PublicReportPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
   const [report, setReport] = useState<any>(null);
   const [layout, setLayout] = useState<any[]>(DEFAULT_LAYOUT);
   const [loading, setLoading] = useState(true);
@@ -27,7 +28,7 @@ export default function PublicReportPage({ params }: { params: { slug: string } 
 
     const fetchReport = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports/public/${params.slug}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports/public/${slug}`);
         if (res.ok) setReport(await res.json());
       } catch (err) {
         console.error(err);
@@ -36,7 +37,7 @@ export default function PublicReportPage({ params }: { params: { slug: string } 
       }
     };
     fetchReport();
-  }, [params.slug]);
+  }, [slug]);
 
   if (loading) return <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)' }}>Loading dynamic report...</div>;
   if (!report) return <div style={{ padding: 60, textAlign: 'center' }}>Report not found or is not public.</div>;
@@ -67,7 +68,7 @@ export default function PublicReportPage({ params }: { params: { slug: string } 
             ) : (
               <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' }}>{c.agencyName}</div>
             )}
-            <button className="btn btn-secondary btn-sm" style={{ whiteSpace: 'nowrap' }}>
+            <button className="btn btn-secondary btn-sm" style={{ whiteSpace: 'nowrap' }} onClick={() => window.print()}>
               <Download size={14} /> Export PDF
             </button>
           </div>

@@ -20,6 +20,7 @@ export class UsersService {
           primaryColor: true,
           accentColor: true,
           plan: true,
+          language: true,
           createdAt: true,
           _count: {
             select: { clients: true, reports: true },
@@ -42,6 +43,7 @@ export class UsersService {
           primaryColor: true,
           accentColor: true,
           plan: true,
+          language: true,
         },
       })
       .catch(() => {

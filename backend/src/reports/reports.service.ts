@@ -134,12 +134,22 @@ export class ReportsService {
       })),
     ]);
 
-    // Generate AI summary
-    const { summary, insights } = await this.aiService.generateReportSummary(
-      user?.agencyName || 'Agency',
-      client?.name || 'Client',
-      metricsData,
-    );
+    // Generate AI summary & Action plan in parallel
+    const [summaryResult, actionPlanResult] = await Promise.all([
+      this.aiService.generateReportSummary(
+        user?.agencyName || 'Agency',
+        client?.name || 'Client',
+        metricsData,
+      ),
+      this.aiService.generateActionPlan(
+        user?.agencyName || 'Agency',
+        client?.name || 'Client',
+        metricsData,
+      ),
+    ]);
+
+    const { summary, insights } = summaryResult;
+    const actionPlan = actionPlanResult;
 
     const reportTitle = title || `${client?.name || 'Client'} — ${new Date().toLocaleString('en', { month: 'long', year: 'numeric' })} Report`;
 
@@ -153,6 +163,7 @@ export class ReportsService {
           status: 'READY',
           aiSummary: summary,
           aiInsights: JSON.stringify(insights),
+          aiActionPlan: JSON.stringify(actionPlan),
           metricsData: JSON.stringify(metricsData),
           isPublic: true,
           period: metricsData.period || new Date().toLocaleString('en', { month: 'long', year: 'numeric' }),
@@ -165,6 +176,7 @@ export class ReportsService {
         publicSlug: 'demo-' + Date.now(),
         aiSummary: summary,
         aiInsights: insights,
+        aiActionPlan: actionPlan,
         metricsData,
         createdAt: new Date(),
       }));
@@ -177,5 +189,48 @@ export class ReportsService {
     return this.prisma.report
       .update({ where: { id }, data: { status: status as any } })
       .catch(() => ({ id, status }));
+  }
+
+  async updateWorkflow(
+    id: string, 
+    userId: string, 
+    status: string, 
+    newComment?: string,
+    contentUpdates?: { aiSummary?: string; aiInsights?: string; aiActionPlan?: string }
+  ) {
+    const report = await this.prisma.report.findUnique({ where: { id } });
+    if (!report) throw new Error('Report not found');
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const author = user?.agencyName || 'Agency Member';
+
+    let comments = [];
+    if (report.internalNotes) {
+      try { comments = JSON.parse(report.internalNotes); } catch (e) {}
+    }
+
+    if (newComment && newComment.trim().length > 0) {
+      comments.push({
+        author,
+        text: newComment.trim(),
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    const data: any = {
+      status: status || report.status,
+      internalNotes: JSON.stringify(comments)
+    };
+
+    if (contentUpdates) {
+      if (contentUpdates.aiSummary !== undefined) data.aiSummary = contentUpdates.aiSummary;
+      if (contentUpdates.aiInsights !== undefined) data.aiInsights = contentUpdates.aiInsights;
+      if (contentUpdates.aiActionPlan !== undefined) data.aiActionPlan = contentUpdates.aiActionPlan;
+    }
+
+    return this.prisma.report.update({
+      where: { id },
+      data
+    });
   }
 }

@@ -20,15 +20,15 @@ export function TrafficLineChart({ color = '#8a2be2' }: { color?: string }) {
               <stop offset="95%" stopColor={color} stopOpacity={0}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-          <XAxis dataKey="date" stroke="rgba(255,255,255,0.2)" fontSize={11} tickMargin={10} />
-          <YAxis stroke="rgba(255,255,255,0.2)" fontSize={11} tickMargin={10} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+          <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={11} tickMargin={10} axisLine={false} tickLine={false} />
+          <YAxis stroke="var(--text-muted)" fontSize={11} tickMargin={10} axisLine={false} tickLine={false} />
           <Tooltip 
-            contentStyle={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
+            contentStyle={{ background: 'var(--bg-2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
             itemStyle={{ color: 'var(--text-primary)' }}
           />
-          <Area type="monotone" dataKey="prev" stroke="rgba(255,255,255,0.2)" fill="transparent" strokeDasharray="5 5" name="Previous Period" />
-          <Area type="monotone" dataKey="sessions" stroke={color} strokeWidth={3} fillOpacity={1} fill="url(#colorSessions)" name="Current Period" />
+          <Area type="monotone" dataKey="prev" stroke="var(--text-muted)" fill="transparent" strokeDasharray="5 5" name="Previous Period" />
+          <Area type="monotone" dataKey="sessions" stroke={color} strokeWidth={3} fillOpacity={1} fill="url(#colorSessions)" name="Current Period" animationDuration={1000} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

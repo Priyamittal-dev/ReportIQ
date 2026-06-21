@@ -1,13 +1,16 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
+import { useTranslation } from '@/components/providers/LanguageProvider';
 
 export default function SettingsPage() {
+  const { t, language, setLanguage } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [form, setForm] = useState({
     agencyName: '',
     primaryColor: '#8a2be2',
-    accentColor: '#00e5ff'
+    accentColor: '#00e5ff',
+    language: 'en'
   });
   const [saving, setSaving] = useState(false);
 
@@ -19,7 +22,8 @@ export default function SettingsPage() {
       setForm({
         agencyName: parsed.agencyName || '',
         primaryColor: parsed.primaryColor || '#8a2be2',
-        accentColor: parsed.accentColor || '#00e5ff'
+        accentColor: parsed.accentColor || '#00e5ff',
+        language: parsed.language || 'en'
       });
     }
   }, []);
@@ -41,6 +45,12 @@ export default function SettingsPage() {
         const updatedUser = await res.json();
         localStorage.setItem('riq_user', JSON.stringify(updatedUser));
         setUser(updatedUser);
+        
+        // Update language provider if changed
+        if (form.language !== language) {
+          setLanguage(form.language);
+        }
+        
         alert('Settings saved successfully!');
       } else {
         throw new Error('Save failed');
@@ -55,27 +65,27 @@ export default function SettingsPage() {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">Settings</h1>
-        <p className="page-subtitle">Manage your agency profile and white-label branding.</p>
+        <h1 className="page-title">{t('settings.title')}</h1>
+        <p className="page-subtitle">{t('settings.subtitle')}</p>
       </div>
 
       <div className="page-body">
         <div style={{ maxWidth: 600 }}>
           <form onSubmit={handleSave} className="card">
             <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 24, borderBottom: '1px solid var(--border)', paddingBottom: 16 }}>
-              Agency Branding
+              {t('settings.branding')}
             </h3>
 
             <div className="form-group" style={{ marginBottom: 20 }}>
-              <label className="form-label">Agency Name</label>
+              <label className="form-label">{t('settings.agency_name')}</label>
               <input className="form-input" type="text" value={form.agencyName} 
                 onChange={e => setForm(p => ({ ...p, agencyName: e.target.value }))} required />
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>This name will appear on all client reports.</p>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('settings.agency_name_desc')}</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 32 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
               <div className="form-group">
-                <label className="form-label">Primary Color</label>
+                <label className="form-label">{t('settings.primary_color')}</label>
                 <div style={{ display: 'flex', gap: 12 }}>
                   <input type="color" value={form.primaryColor} 
                     onChange={e => setForm(p => ({ ...p, primaryColor: e.target.value }))}
@@ -86,7 +96,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Accent Color</label>
+                <label className="form-label">{t('settings.accent_color')}</label>
                 <div style={{ display: 'flex', gap: 12 }}>
                   <input type="color" value={form.accentColor} 
                     onChange={e => setForm(p => ({ ...p, accentColor: e.target.value }))}
@@ -97,8 +107,17 @@ export default function SettingsPage() {
               </div>
             </div>
 
+            <div className="form-group" style={{ marginBottom: 32 }}>
+              <label className="form-label">{t('settings.language')}</label>
+              <select className="form-select" value={form.language} onChange={e => setForm(p => ({ ...p, language: e.target.value }))}>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+              </select>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t('settings.language_desc')}</p>
+            </div>
+
             <button type="submit" className="btn btn-primary" disabled={saving}>
-              <Save size={16} /> {saving ? 'Saving...' : 'Save Settings'}
+              <Save size={16} /> {saving ? t('settings.saving') : t('settings.save')}
             </button>
           </form>
 

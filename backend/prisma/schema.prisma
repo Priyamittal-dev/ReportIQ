@@ -25,6 +25,12 @@ model User {
   googleId      String?  @unique
   emailVerified Boolean  @default(false)
   verificationToken String?
+  language      String   @default("en")
+  
+  stripeCustomerId     String? @unique
+  stripeSubscriptionId String? @unique
+  stripePriceId        String?
+  stripeCurrentPeriodEnd DateTime?
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -104,8 +110,9 @@ model Report {
   isPublic    Boolean       @default(false)
   
   // AI Generated
-  aiSummary   String?
-  aiInsights  String?         // Array of insight strings
+  aiSummary    String?
+  aiInsights   String?         // Array of insight strings
+  aiActionPlan String?         // JSON of action plan { plan: string, actionItems: [] }
   
   // Report data
   metricsData String?         // Raw metrics: sessions, conversions, etc.
@@ -113,6 +120,10 @@ model Report {
   
   // PDF
   pdfUrl      String?       // Cloudinary URL to stored PDF
+  
+  // Team Workflows
+  internalNotes String?     // JSON array of internal comments
+
   
   // Scheduling
   scheduledAt DateTime?

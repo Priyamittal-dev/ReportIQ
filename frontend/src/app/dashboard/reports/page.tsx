@@ -64,7 +64,11 @@ export default function ReportsPage() {
               <tbody>
                 {reports.map((r) => (
                   <tr key={r.id}>
-                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{r.title}</td>
+                    <td style={{ fontWeight: 600 }}>
+                      <Link href={`/dashboard/reports/${r.id}`} style={{ color: 'var(--text-primary)', textDecoration: 'none' }}>
+                        {r.title}
+                      </Link>
+                    </td>
                     <td>{r.client?.name || 'Unknown'}</td>
                     <td>{r.period || 'N/A'}</td>
                     <td>

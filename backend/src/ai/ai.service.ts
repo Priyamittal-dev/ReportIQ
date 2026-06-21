@@ -136,6 +136,65 @@ Return JSON format:
     }
   }
 
+  async generateActionPlan(
+    agencyName: string,
+    clientName: string,
+    metrics: ReportMetrics,
+  ): Promise<{ plan: string; actionItems: { task: string; priority: 'High' | 'Medium' | 'Low' }[] }> {
+    if (!this.openai || this.config.get('USE_MOCK_AI') === 'true') {
+      return this.generateMockActionPlan(clientName, metrics);
+    }
+
+    try {
+      const prompt = `
+You are an expert digital marketing strategist. Based on the following performance data for ${clientName} (managed by ${agencyName}), generate a proactive, concrete action plan.
+
+Data:
+- Sessions: ${metrics.sessions || 'N/A'}
+- Conversions: ${metrics.conversions || 'N/A'}
+- Conversion Rate: ${metrics.conversionRate || 'N/A'}%
+- Revenue: ${metrics.revenue ? '$' + metrics.revenue : 'N/A'}
+- Bounce Rate: ${metrics.bounceRate || 'N/A'}%
+
+Instructions:
+1. Provide a short 2-3 sentence strategic rationale (the "plan" field).
+2. Generate exactly 3 actionable tasks to improve performance next month.
+3. Assign a priority (High, Medium, Low) to each task.
+
+Return JSON format:
+{
+  "plan": "...",
+  "actionItems": [
+    { "task": "...", "priority": "High" }
+  ]
+}`;
+
+      const response = await this.openai.chat.completions.create({
+        model: this.config.get('OPENAI_MODEL', 'gpt-4o'),
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' },
+        max_tokens: 500,
+      });
+
+      return JSON.parse(response.choices[0].message.content ?? '{}');
+    } catch (error) {
+      this.logger.error('OpenAI action plan error: ' + error.message);
+      return this.generateMockActionPlan(clientName, metrics);
+    }
+  }
+
+  private generateMockActionPlan(clientName: string, metrics: ReportMetrics): { plan: string; actionItems: { task: string; priority: 'High' | 'Medium' | 'Low' }[] } {
+    const convRate = metrics.conversionRate || 3.2;
+    return {
+      plan: `Based on ${clientName}'s conversion rate of ${convRate}%, the immediate focus should be on middle-of-funnel optimization and reducing bounce rates on key landing pages. Redirecting ad spend from underperforming campaigns to high-intent search queries will yield immediate improvements.`,
+      actionItems: [
+        { task: 'Implement A/B testing on the primary lead capture form to improve the 3.2% conversion rate.', priority: 'High' as 'High' },
+        { task: 'Audit and pause the bottom 20% performing Meta Ad sets based on CPA.', priority: 'High' as 'High' },
+        { task: 'Create two new blog posts targeting long-tail keywords to capitalize on rising organic momentum.', priority: 'Medium' as 'Medium' }
+      ]
+    };
+  }
+
   private localChat(message: string): string {
     const msg = message.toLowerCase();
 

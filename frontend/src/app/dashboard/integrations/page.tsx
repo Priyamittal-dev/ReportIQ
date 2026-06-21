@@ -120,7 +120,12 @@ export default function IntegrationsPage() {
         ) : (
           <div className="card-grid card-grid-4">
             {filteredIntegrations.map(int => {
-              const isConnected = ['ga4', 'gads', 'meta'].includes(int.id) && integrations.some(i => i.type === int.id.toUpperCase().replace('4','')); // Mock logic for connected state
+              const integrationTypeMap: Record<string, string> = {
+                ga4: 'GOOGLE_ANALYTICS',
+                gads: 'GOOGLE_ADS',
+                meta: 'META_ADS'
+              };
+              const isConnected = integrationTypeMap[int.id] && integrations.some(i => i.type === integrationTypeMap[int.id]);
 
               return (
                 <div key={int.id} className="card" style={{ display: 'flex', flexDirection: 'column', padding: 24 }}>

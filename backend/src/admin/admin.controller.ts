@@ -49,15 +49,15 @@ export class AdminController {
   @Get('config')
   getConfig() {
     return {
-      maintenanceMode: global.maintenanceMode || false
+      maintenanceMode: (global as any).maintenanceMode || false
     };
   }
 
   @Put('config')
   updateConfig(@Body() body: any) {
     if (body.maintenanceMode !== undefined) {
-      global.maintenanceMode = body.maintenanceMode;
+      (global as any).maintenanceMode = body.maintenanceMode;
     }
-    return { success: true, maintenanceMode: global.maintenanceMode };
+    return { success: true, maintenanceMode: (global as any).maintenanceMode };
   }
 }

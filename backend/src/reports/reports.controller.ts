@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ReportsService } from './reports.service';
@@ -28,6 +28,22 @@ export class ReportsController {
   @ApiOperation({ summary: 'Get a specific report' })
   findOne(@Param('id') id: string, @Req() req: any) {
     return this.reportsService.findOne(id, req.user.id);
+  }
+
+  @Put(':id/workflow')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: 'Update report workflow status, comments, and content' })
+  updateWorkflow(
+    @Param('id') id: string,
+    @Body() body: { status: string; newComment?: string; aiSummary?: string; aiInsights?: string; aiActionPlan?: string },
+    @Req() req: any,
+  ) {
+    return this.reportsService.updateWorkflow(id, req.user.id, body.status, body.newComment, {
+      aiSummary: body.aiSummary,
+      aiInsights: body.aiInsights,
+      aiActionPlan: body.aiActionPlan
+    });
   }
 
   @Post('generate')

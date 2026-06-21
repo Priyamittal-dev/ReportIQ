@@ -5,33 +5,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* Core palette */
-  --bg-0: #060810;
-  --bg-1: #0a0f1a;
-  --bg-2: #0f1628;
-  --bg-3: #141d35;
-  --bg-card: rgba(15, 22, 40, 0.8);
+  /* Light palette (Default) */
+  --bg-0: #f8fafc;
+  --bg-1: #ffffff;
+  --bg-2: #f1f5f9;
+  --bg-3: #e2e8f0;
+  --bg-card: rgba(255, 255, 255, 0.85);
 
-  /* Text */
-  --text-primary: #f0f4ff;
-  --text-secondary: rgba(240, 244, 255, 0.65);
-  --text-muted: rgba(240, 244, 255, 0.35);
+  /* Light Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
 
   /* Accent */
   --accent: #8a2be2;
   --accent-2: #00e5ff;
-  --accent-green: #10d48e;
-  --accent-red: #f43f5e;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
   --accent-yellow: #f59e0b;
 
-  /* Borders */
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.18);
-  --border-accent: rgba(138, 43, 226, 0.35);
+  /* Light Borders */
+  --border: rgba(15, 23, 42, 0.08);
+  --border-hover: rgba(15, 23, 42, 0.15);
+  --border-accent: rgba(138, 43, 226, 0.2);
 
   /* Gradients */
   --gradient-brand: linear-gradient(135deg, #8a2be2, #00e5ff);
-  --gradient-card: linear-gradient(145deg, rgba(15,22,40,0.9), rgba(10,15,26,0.95));
+  --gradient-card: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(248,250,252,0.95));
 
   /* Typography */
   --font-sans: 'Inter', -apple-system, sans-serif;
@@ -43,6 +43,27 @@
   --t-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.dark {
+  /* Dark palette */
+  --bg-0: #060810;
+  --bg-1: #0a0f1a;
+  --bg-2: #0f1628;
+  --bg-3: #141d35;
+  --bg-card: rgba(15, 22, 40, 0.8);
+
+  /* Dark Text */
+  --text-primary: #f0f4ff;
+  --text-secondary: rgba(240, 244, 255, 0.65);
+  --text-muted: rgba(240, 244, 255, 0.35);
+
+  /* Dark Borders */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --border-accent: rgba(138, 43, 226, 0.35);
+
+  /* Dark Gradients */
+  --gradient-card: linear-gradient(145deg, rgba(15,22,40,0.9), rgba(10,15,26,0.95));
+}
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

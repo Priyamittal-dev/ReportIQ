@@ -4,6 +4,9 @@ import { ArrowUpRight, ArrowDownRight, Sparkles, Download, BarChart2 } from 'luc
 import Link from 'next/link';
 import { TrafficLineChart } from '@/components/widgets/TrafficLineChart';
 import { SourceBarChart } from '@/components/widgets/SourceBarChart';
+import { ForecastChart } from '@/components/widgets/ForecastChart';
+import { BrainCircuit } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // Same default as the builder
 const DEFAULT_LAYOUT = [
@@ -12,6 +15,19 @@ const DEFAULT_LAYOUT = [
   { id: 'w-metrics', type: 'metrics-grid', title: 'KPI Grid' },
   { id: 'w-chart-1', type: 'traffic-chart', title: 'Traffic Over Time' },
 ];
+
+const staggerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 }
+  }
+};
+
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 200, damping: 20 } }
+};
 
 export default function PublicReportPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -42,15 +58,38 @@ export default function PublicReportPage({ params }: { params: Promise<{ slug: s
   if (loading) return <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-muted)' }}>Loading dynamic report...</div>;
   if (!report) return <div style={{ padding: 60, textAlign: 'center' }}>Report not found or is not public.</div>;
 
-  const m = report.metricsData || {};
+  let m = {};
+  try {
+    m = typeof report.metricsData === 'string' ? JSON.parse(report.metricsData) : (report.metricsData || {});
+  } catch (e) {
+    m = report.metricsData || {};
+  }
+
+  let parsedInsights = [];
+  try {
+    parsedInsights = typeof report.aiInsights === 'string' ? JSON.parse(report.aiInsights) : (report.aiInsights || []);
+  } catch (e) {
+    parsedInsights = Array.isArray(report.aiInsights) ? report.aiInsights : [];
+  }
+  report.aiInsights = parsedInsights;
+
+  let parsedActionPlan = null;
+  if (report.aiActionPlan) {
+    try {
+      parsedActionPlan = typeof report.aiActionPlan === 'string' ? JSON.parse(report.aiActionPlan) : report.aiActionPlan;
+    } catch (e) {
+      console.error('Failed to parse aiActionPlan', e);
+    }
+  }
+  report.actionPlan = parsedActionPlan;
   const c = report.user || { primaryColor: '#8a2be2', accentColor: '#00e5ff', agencyName: 'Agency' };
 
   return (
-    <div className="report-page">
-      <div className="report-container">
+    <div className="report-page print:bg-white print:p-0">
+      <motion.div initial="hidden" animate="show" variants={staggerVariants} className="report-container print:shadow-none print:max-w-none print:m-0 print:border-none">
         
         {/* Dynamic Header (Always pinned top) */}
-        <div className="report-agency-header" style={{ flexWrap: 'wrap', gap: 16 }}>
+        <motion.div variants={fadeUpVariants} className="report-agency-header print:break-inside-avoid" style={{ flexWrap: 'wrap', gap: 16 }}>
           <div>
             <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.1em', color: c.primaryColor, marginBottom: 8, fontWeight: 700 }}>
               Performance Report
@@ -68,28 +107,28 @@ export default function PublicReportPage({ params }: { params: Promise<{ slug: s
             ) : (
               <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' }}>{c.agencyName}</div>
             )}
-            <button className="btn btn-secondary btn-sm" style={{ whiteSpace: 'nowrap' }} onClick={() => window.print()}>
+            <button className="btn btn-secondary btn-sm print:hidden" style={{ whiteSpace: 'nowrap' }} onClick={() => window.print()}>
               <Download size={14} /> Export PDF
             </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Dynamic Template Renderer */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32, marginTop: 40 }}>
           {layout.map((widget) => (
-            <div key={widget.id} className="animate-in">
+            <motion.div key={widget.id} variants={fadeUpVariants} className="print:break-inside-avoid">
               <WidgetRenderer type={widget.type} title={widget.title} report={report} m={m} c={c} />
-            </div>
+            </motion.div>
           ))}
         </div>
 
         {/* Footer */}
-        <div style={{ textAlign: 'center', marginTop: 80, padding: 24, borderTop: '1px solid var(--border)' }}>
+        <motion.div variants={fadeUpVariants} style={{ textAlign: 'center', marginTop: 80, padding: 24, borderTop: '1px solid var(--border)' }} className="print:mt-12">
           <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
             Report generated securely via <Link href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500 }}>ReportIQ</Link>
           </p>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
@@ -150,6 +189,46 @@ function WidgetRenderer({ type, title, report, m, c }: any) {
       return (
         <div className="card">
           <SourceBarChart color={c.accentColor} />
+        </div>
+      );
+      
+    case 'predictive-forecast':
+      return (
+        <div className="card">
+          <ForecastChart color={c.accentColor} />
+        </div>
+      );
+      
+    case 'action-plan':
+      return (
+        <div style={{ background: `linear-gradient(135deg, ${c.accentColor}15, transparent)`, border: `1px solid ${c.accentColor}40`, padding: 24, borderRadius: 12 }}>
+          <div style={{ fontSize: 11, color: c.accentColor, fontWeight: 700, textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <BrainCircuit size={14} /> AI Action Plan
+          </div>
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>
+            {report.actionPlan?.plan || "Based on this month's performance, here are recommended actions to improve metrics."}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {(report.actionPlan?.actionItems || []).length > 0 ? (
+              report.actionPlan.actionItems.map((item: any, i: number) => (
+                <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', padding: 16, background: 'var(--bg-1)', borderRadius: 10, border: '1px solid var(--border)' }}>
+                  <div style={{ 
+                    padding: '4px 8px', 
+                    borderRadius: 6, 
+                    fontSize: 10, 
+                    fontWeight: 700, 
+                    background: item.priority === 'High' ? 'rgba(244, 63, 94, 0.1)' : item.priority === 'Medium' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(16, 212, 142, 0.1)',
+                    color: item.priority === 'High' ? 'var(--accent-red)' : item.priority === 'Medium' ? 'var(--accent-yellow)' : 'var(--accent-green)'
+                  }}>
+                    {item.priority}
+                  </div>
+                  <div style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.5 }}>{item.task}</div>
+                </div>
+              ))
+            ) : (
+              <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)' }}>Action plan generating...</div>
+            )}
+          </div>
         </div>
       );
       

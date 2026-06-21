@@ -1,9 +1,9 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-export default function AuthCallbackPage() {
+function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -42,5 +42,18 @@ export default function AuthCallbackPage() {
       <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>Signing you in...</h2>
       <p style={{ color: 'var(--text-secondary)' }}>Securing your session and loading the dashboard.</p>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-0)' }}>
+        <Loader2 size={48} className="animate-spin" color="var(--accent)" style={{ marginBottom: 24 }} />
+        <h2 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)' }}>Loading...</h2>
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   );
 }

@@ -27,6 +27,23 @@ export class AiController {
     );
   }
 
+  @Post('action-plan')
+  @ApiOperation({ summary: 'Generate AI Action Plan' })
+  actionPlan(
+    @Body()
+    body: {
+      agencyName: string;
+      clientName: string;
+      metrics: ReportMetrics;
+    },
+  ) {
+    return this.aiService.generateActionPlan(
+      body.agencyName,
+      body.clientName,
+      body.metrics,
+    );
+  }
+
   @Post('chat')
   @ApiOperation({ summary: 'Chat with AI assistant' })
   chat(@Body() body: { message: string }) {

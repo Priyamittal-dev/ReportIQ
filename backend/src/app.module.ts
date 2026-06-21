@@ -19,6 +19,7 @@ import { AdminModule } from './admin/admin.module';
 import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { ScraperModule } from './scraper/scraper.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { BillingModule } from './billing/billing.module';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { MaintenanceGuard } from './common/guards/maintenance.guard';

@@ -5,13 +5,31 @@ import { CreditCard, Check, AlertCircle } from 'lucide-react';
 export default function BillingPage() {
   const [loading, setLoading] = useState(false);
 
-  const handleCheckout = (plan: string) => {
+  const handleCheckout = async (plan: string) => {
     setLoading(true);
-    // Mock Stripe checkout
-    setTimeout(() => {
-      alert(`Stripe Checkout simulated for ${plan} plan (Test Mode).`);
+    try {
+      const token = localStorage.getItem('riq_token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ plan }),
+      });
+      
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Failed to initiate checkout.');
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error initiating checkout.');
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (

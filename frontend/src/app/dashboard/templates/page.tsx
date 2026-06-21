@@ -6,6 +6,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Plus, Save, LayoutTemplate, X, FileText, BarChart2, Hash, ArrowUpRight } from 'lucide-react';
 import { TrafficLineChart } from '@/components/widgets/TrafficLineChart';
 import { SourceBarChart } from '@/components/widgets/SourceBarChart';
+import { ForecastChart } from '@/components/widgets/ForecastChart';
+import { BrainCircuit } from 'lucide-react';
 
 // Initial default layout matching the MVP
 const DEFAULT_LAYOUT = [
@@ -21,6 +23,8 @@ const AVAILABLE_WIDGETS = [
   { type: 'metrics-grid', title: 'KPI Grid', icon: <LayoutTemplate size={16} /> },
   { type: 'traffic-chart', title: 'Traffic Over Time', icon: <BarChart2 size={16} /> },
   { type: 'source-chart', title: 'Traffic Sources', icon: <BarChart2 size={16} /> },
+  { type: 'predictive-forecast', title: 'AI Forecast', icon: <BrainCircuit size={16} /> },
+  { type: 'action-plan', title: 'AI Action Plan', icon: <BrainCircuit size={16} /> },
 ];
 
 export default function TemplateBuilderPage() {
@@ -206,6 +210,25 @@ function WidgetPreview({ type, theme }: { type: string, theme: any }) {
       return <TrafficLineChart color={theme.primaryColor} />;
     case 'source-chart':
       return <SourceBarChart color={theme.accentColor} />;
+    case 'predictive-forecast':
+      return <ForecastChart color={theme.accentColor} />;
+    case 'action-plan':
+      return (
+        <div style={{ background: `linear-gradient(135deg, ${theme.accentColor}15, transparent)`, border: `1px solid ${theme.accentColor}40`, padding: 20, borderRadius: 12 }}>
+          <div style={{ fontSize: 11, color: theme.accentColor, fontWeight: 600, textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <BrainCircuit size={14} /> AI Action Plan
+          </div>
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>Based on this month's performance, here are 3 recommended actions to improve conversion rates.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[1, 2, 3].map(i => (
+              <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 12, background: 'var(--bg-1)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: i === 1 ? 'var(--accent-red)' : i === 2 ? 'var(--accent-yellow)' : 'var(--accent-green)' }} />
+                <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>Placeholder for AI-generated actionable task #{i}.</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     default:
       return <div>Unknown Widget</div>;
   }

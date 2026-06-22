@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Book, Plug, MessageSquare, Zap, PlayCircle, FileText, ChevronRight } from 'lucide-react';
+import SupportModal from '@/components/SupportModal';
 
 const categories = [
   {
@@ -40,9 +41,11 @@ const categories = [
 
 export default function DocumentationPage() {
   const [search, setSearch] = useState('');
+  const [supportOpen, setSupportOpen] = useState(false);
 
   return (
     <div>
+      <SupportModal open={supportOpen} onClose={() => setSupportOpen(false)} />
       {/* Hero Header */}
       <div style={{ 
         background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', 
@@ -129,7 +132,7 @@ export default function DocumentationPage() {
               <p style={{ color: 'var(--text-secondary)', fontSize: 15 }}>Our support team is available 24/7 to help you resolve any issues.</p>
             </div>
           </div>
-          <button className="btn btn-primary" style={{ padding: '12px 24px', fontSize: 16 }}>Contact Support</button>
+          <button className="btn btn-primary" style={{ padding: '12px 24px', fontSize: 16 }} onClick={() => setSupportOpen(true)}>Contact Support</button>
         </div>
 
       </div>

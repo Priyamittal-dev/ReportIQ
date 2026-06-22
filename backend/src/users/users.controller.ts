@@ -29,4 +29,10 @@ export class UsersController {
   getStats(@Req() req: any) {
     return this.usersService.getStats(req.user.id);
   }
+
+  @Get('me/alerts')
+  @ApiOperation({ summary: 'Get recent anomaly alerts' })
+  getAlerts(@Req() req: any) {
+    return this.usersService.getAlerts(req.user.id);
+  }
 }

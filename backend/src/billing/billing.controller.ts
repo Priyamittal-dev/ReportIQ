@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, RawBodyRequest, Headers } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, Headers } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { BillingService } from './billing.service';
@@ -24,7 +24,7 @@ export class BillingController {
   @ApiOperation({ summary: 'Stripe Webhook Listener' })
   async handleWebhook(
     @Headers('stripe-signature') signature: string,
-    @Req() req: RawBodyRequest<Request>,
+    @Req() req: any,
   ) {
     // Note: Raw body is required for Stripe signature verification.
     // Ensure main.ts configures NestJS to provide raw body (e.g. app.useBodyParser('json', { rawBody: true }))

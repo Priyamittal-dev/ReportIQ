@@ -27,6 +27,10 @@ model User {
   verificationToken String?
   language      String   @default("en")
   
+  // White-labeling
+  customDomain  String?  @unique
+  domainVerified Boolean @default(false)
+  
   stripeCustomerId     String? @unique
   stripeSubscriptionId String? @unique
   stripePriceId        String?
@@ -39,6 +43,7 @@ model User {
   reports       Report[]
   integrations  Integration[]
   templates     ReportTemplate[]
+  alerts        AnomalyAlert[]
 
   @@index([email])
   @@map("users")
@@ -66,6 +71,7 @@ model Client {
   updatedAt   DateTime @updatedAt
   
   reports     Report[]
+  alerts      AnomalyAlert[]
 
   @@index([userId])
   @@index([email])
@@ -216,4 +222,29 @@ model AuditLog {
   @@index([userId])
   @@index([action])
   @@map("audit_logs")
+}
+
+// =====================
+// ANOMALY ALERTS
+// =====================
+model AnomalyAlert {
+  id          String   @id @default(uuid())
+  title       String   // e.g. "Traffic Drop Detected"
+  message     String   // e.g. "Organic traffic dropped by 40% yesterday."
+  severity    String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  metricName  String   // e.g. "sessions", "conversions"
+  metricValue Float
+  isRead      Boolean  @default(false)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([clientId])
+  @@map("anomaly_alerts")
 }

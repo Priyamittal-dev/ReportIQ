@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Users, FileText, Send, Clock, ArrowUpRight, Zap, Plug, BarChart3, Plus, ArrowDownRight, Activity } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import TiltCard3D from '@/components/TiltCard3D';
+import AnomalyAlertsWidget from '@/components/AnomalyAlertsWidget';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,7 +22,7 @@ const itemVariants = {
 // Count-up hook
 function useCountUp(target: number, duration = 1200) {
   const [count, setCount] = useState(0);
-  const raf = useRef<number>();
+  const raf = useRef<number | null>(null);
   useEffect(() => {
     if (target === 0) return;
     const start = Date.now();
@@ -112,9 +114,9 @@ export default function DashboardOverview() {
 
       <div className="page-body">
         {/* Stats Grid */}
-        <motion.div variants={containerVariants} className="card-grid card-grid-4" style={{ marginBottom: 40 }}>
+        <motion.div variants={containerVariants} className="card-grid card-grid-4" style={{ marginBottom: 40, perspective: 1000 }}>
           
-          <motion.div variants={itemVariants} className="stat-card" whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+          <TiltCard3D className="stat-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div className="stat-label">Total Clients</div>
@@ -125,9 +127,9 @@ export default function DashboardOverview() {
             <div>
               <span className="stat-change up"><ArrowUpRight size={14} /> +2 this month</span>
             </div>
-          </motion.div>
+          </TiltCard3D>
           
-          <motion.div variants={itemVariants} className="stat-card" whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+          <TiltCard3D className="stat-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div className="stat-label">Reports Gen.</div>
@@ -138,9 +140,9 @@ export default function DashboardOverview() {
             <div>
               <span className="stat-change up"><ArrowUpRight size={14} /> +12% vs last month</span>
             </div>
-          </motion.div>
+          </TiltCard3D>
 
-          <motion.div variants={itemVariants} className="stat-card" whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+          <TiltCard3D className="stat-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div className="stat-label">Auto Sent</div>
@@ -149,9 +151,9 @@ export default function DashboardOverview() {
               <div className="stat-icon" style={{ background: 'rgba(16,212,142,0.12)', color: 'var(--accent-green)' }}><Send size={20} /></div>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>via scheduled delivery</div>
-          </motion.div>
+          </TiltCard3D>
 
-          <motion.div variants={itemVariants} className="stat-card" whileHover={{ y: -4, transition: { duration: 0.2 } }}>
+          <TiltCard3D className="stat-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <div className="stat-label">Hours Saved</div>
@@ -160,8 +162,13 @@ export default function DashboardOverview() {
               <div className="stat-icon" style={{ background: 'rgba(245,158,11,0.12)', color: 'var(--accent-yellow)' }}><Clock size={20} /></div>
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Calculated at 2h per report</div>
-          </motion.div>
+          </TiltCard3D>
 
+        </motion.div>
+
+        {/* Anomaly Alerts Full Width Row */}
+        <motion.div variants={itemVariants} style={{ marginBottom: 40 }}>
+          <AnomalyAlertsWidget />
         </motion.div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 32 }}>

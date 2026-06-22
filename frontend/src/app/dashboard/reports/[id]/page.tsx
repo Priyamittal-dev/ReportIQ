@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, ExternalLink, Sparkles, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, ExternalLink, Sparkles, Plus, Trash2, Smartphone } from 'lucide-react';
+import ClientPortalPreview from '@/components/ClientPortalPreview';
 
 export default function InternalReportDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -10,6 +11,7 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
   const [newComment, setNewComment] = useState('');
   const [status, setStatus] = useState('DRAFT');
   const [saving, setSaving] = useState(false);
+  const [simulatorOpen, setSimulatorOpen] = useState(false);
 
   // Editable content state
   const [aiSummary, setAiSummary] = useState('');
@@ -97,6 +99,11 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
 
   return (
     <div>
+      <ClientPortalPreview 
+        open={simulatorOpen} 
+        onClose={() => setSimulatorOpen(false)} 
+        reportSlug={report?.publicSlug} 
+      />
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-0)', position: 'sticky', top: 64, zIndex: 40, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
         <div>
           <Link href="/dashboard/reports" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)', textDecoration: 'none', fontSize: 13, marginBottom: 12 }}>
@@ -107,9 +114,9 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           {report.isPublic && (
-            <Link href={`/report/${report.publicSlug}`} target="_blank" className="btn btn-secondary">
-              <ExternalLink size={16} /> Preview Client View
-            </Link>
+            <button onClick={() => setSimulatorOpen(true)} className="btn btn-secondary">
+              <Smartphone size={16} /> Preview Client View
+            </button>
           )}
           <button onClick={handleSave} disabled={saving} className="btn btn-primary">
             {saving ? 'Saving...' : <><Save size={16} /> Save Changes</>}

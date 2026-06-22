@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { Check, Zap, BarChart3, Mail, Globe, Clock, Shield, Brain, ArrowRight, ChevronRight } from 'lucide-react';
+import { Check, Zap, BarChart3, Mail, Globe, Clock, Shield, Brain, ArrowRight, ChevronRight, ShieldCheck, Lock, FileKey } from 'lucide-react';
 
 const features = [
   {
@@ -185,6 +185,51 @@ export default function LandingPage() {
               <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{s.sub}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Security & Compliance */}
+      <section className="section section-center" style={{ background: 'var(--bg-0)' }}>
+        <span className="section-tag" style={{ background: 'rgba(16,212,142,0.1)', color: '#10d48e', border: '1px solid rgba(16,212,142,0.2)' }}>
+          Enterprise Security
+        </span>
+        <h2 className="section-title">Bank-grade security & compliance</h2>
+        <p className="section-subtitle" style={{ maxWidth: 700, margin: '0 auto 40px' }}>
+          Your client data is your most valuable asset. We treat it that way. ReportIQ is audited and certified to meet the highest global security standards.
+        </p>
+        
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center', maxWidth: 1000, margin: '0 auto' }}>
+          
+          <div className="card" style={{ flex: '1 1 250px', display: 'flex', alignItems: 'center', gap: 16, padding: '24px', background: 'var(--bg-1)' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(138,43,226,0.1)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ShieldCheck size={24} />
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>ISO 27001</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Certified Information Security</div>
+            </div>
+          </div>
+
+          <div className="card" style={{ flex: '1 1 250px', display: 'flex', alignItems: 'center', gap: 16, padding: '24px', background: 'var(--bg-1)' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(0,229,255,0.1)', color: '#00e5ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Lock size={24} />
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>SOC 2 Type II</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Audited & Verified Annually</div>
+            </div>
+          </div>
+
+          <div className="card" style={{ flex: '1 1 250px', display: 'flex', alignItems: 'center', gap: 16, padding: '24px', background: 'var(--bg-1)' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(16,212,142,0.1)', color: '#10d48e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FileKey size={24} />
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)' }}>GDPR Compliant</div>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Data Privacy Guaranteed</div>
+            </div>
+          </div>
+
         </div>
       </section>
 

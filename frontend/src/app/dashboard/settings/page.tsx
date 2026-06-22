@@ -10,7 +10,8 @@ export default function SettingsPage() {
     agencyName: '',
     primaryColor: '#8a2be2',
     accentColor: '#00e5ff',
-    language: 'en'
+    language: 'en',
+    customDomain: '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -23,7 +24,8 @@ export default function SettingsPage() {
         agencyName: parsed.agencyName || '',
         primaryColor: parsed.primaryColor || '#8a2be2',
         accentColor: parsed.accentColor || '#00e5ff',
-        language: parsed.language || 'en'
+        language: parsed.language || 'en',
+        customDomain: parsed.customDomain || '',
       });
     }
   }, []);
@@ -129,8 +131,11 @@ export default function SettingsPage() {
             <div className="form-group" style={{ marginBottom: 20 }}>
               <label className="form-label">Custom Domain (CNAME)</label>
               <div style={{ display: 'flex', gap: 12 }}>
-                <input className="form-input" type="text" placeholder="reports.youragency.com" />
-                <button className="btn btn-secondary">Verify</button>
+                <input className="form-input" type="text" placeholder="reports.youragency.com" 
+                  value={form.customDomain}
+                  onChange={e => setForm(p => ({ ...p, customDomain: e.target.value }))}
+                />
+                <button type="button" className="btn btn-secondary" onClick={() => alert('Domain verification requires DNS propagation. Check back in 15 minutes.')}>Verify</button>
               </div>
               <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Point a CNAME record to <code>cname.reportiq.app</code></p>
             </div>

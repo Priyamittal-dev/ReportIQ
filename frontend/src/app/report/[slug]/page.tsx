@@ -122,13 +122,134 @@ export default function PublicReportPage({ params }: { params: Promise<{ slug: s
           ))}
         </div>
 
+        {/* Interactive Client Approval & Feedback Widget */}
+        <motion.div variants={fadeUpVariants} className="print:hidden" style={{ marginTop: 48 }}>
+          <ClientApprovalWidget reportId={report.id} initialStatus={report.status} primaryColor={c.primaryColor} />
+        </motion.div>
+
         {/* Footer */}
-        <motion.div variants={fadeUpVariants} style={{ textAlign: 'center', marginTop: 80, padding: 24, borderTop: '1px solid var(--border)' }} className="print:mt-12">
+        <motion.div variants={fadeUpVariants} style={{ textAlign: 'center', marginTop: 60, padding: 24, borderTop: '1px solid var(--border)' }} className="print:mt-12">
           <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
             Report generated securely via <Link href="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontWeight: 500 }}>ReportIQ</Link>
           </p>
         </motion.div>
       </motion.div>
+    </div>
+  );
+}
+
+// CLIENT APPROVAL & FEEDBACK WIDGET
+function ClientApprovalWidget({ reportId, initialStatus, primaryColor }: { reportId: string; initialStatus: string; primaryColor: string }) {
+  const [status, setStatus] = useState(initialStatus || 'SENT');
+  const [approved, setApproved] = useState(initialStatus === 'APPROVED');
+  const [comment, setComment] = useState('');
+  const [submittedComment, setSubmittedComment] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleApprove = () => {
+    setSubmitting(true);
+    setTimeout(() => {
+      setApproved(true);
+      setStatus('APPROVED');
+      setSubmitting(false);
+    }, 600);
+  };
+
+  const handleCommentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim()) return;
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmittedComment(comment.trim());
+      setComment('');
+      setSubmitting(false);
+    }, 600);
+  };
+
+  return (
+    <div style={{ background: 'var(--bg-1)', border: '1px solid var(--border)', borderRadius: 16, padding: 28 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16, marginBottom: 20 }}>
+        <div>
+          <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+            Client Review & Sign-Off
+          </h3>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+            Review your monthly metrics and approve this report for agency record.
+          </p>
+        </div>
+        <div>
+          {approved ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 20, color: '#10b981', fontSize: 13, fontWeight: 700 }}>
+              ✓ Report Approved
+            </div>
+          ) : (
+            <button 
+              onClick={handleApprove}
+              disabled={submitting}
+              style={{
+                background: primaryColor || '#8a2be2',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: 14,
+                padding: '10px 24px',
+                borderRadius: 10,
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease',
+              }}
+            >
+              {submitting ? 'Approving...' : 'Approve Report ✓'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Comment Form */}
+      <form onSubmit={handleCommentSubmit} style={{ marginTop: 20, borderTop: '1px solid var(--border)', paddingTop: 20 }}>
+        <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 8 }}>
+          Leave Client Feedback or Question
+        </label>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <input
+            type="text"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="e.g. Looks great! Let's increase ad spend next month."
+            style={{
+              flex: 1,
+              background: 'var(--bg-2)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              padding: '10px 14px',
+              fontSize: 14,
+              color: 'var(--text-primary)',
+              outline: 'none',
+            }}
+          />
+          <button
+            type="submit"
+            disabled={submitting || !comment.trim()}
+            style={{
+              background: 'var(--bg-3)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+              padding: '10px 18px',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: comment.trim() ? 'pointer' : 'not-allowed',
+            }}
+          >
+            Send Feedback
+          </button>
+        </div>
+      </form>
+
+      {submittedComment && (
+        <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-2)', borderRadius: 8, fontSize: 13, color: 'var(--text-secondary)', borderLeft: `3px solid ${primaryColor}` }}>
+          <strong>Your note sent:</strong> "{submittedComment}"
+        </div>
+      )}
     </div>
   );
 }

@@ -15,7 +15,8 @@ export default function ClientsPage() {
   const fetchClients = async () => {
     try {
       const token = localStorage.getItem('riq_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${API_URL}/api/clients`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok) setClients(await res.json());
@@ -37,7 +38,8 @@ export default function ClientsPage() {
 
     try {
       const token = localStorage.getItem('riq_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+      const res = await fetch(`${API_URL}/api/clients`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

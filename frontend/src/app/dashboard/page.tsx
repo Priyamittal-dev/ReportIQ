@@ -16,7 +16,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } }
 };
 
 // Count-up hook
@@ -114,7 +114,7 @@ export default function DashboardOverview() {
 
       <div className="page-body">
         {/* Stats Grid */}
-        <motion.div variants={containerVariants} className="card-grid card-grid-4" style={{ marginBottom: 40, perspective: 1000 }}>
+        <motion.div variants={containerVariants} className="card-grid card-grid-4 tour-dashboard-stats" style={{ marginBottom: 40, perspective: 1000 }}>
           
           <TiltCard3D className="stat-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -167,7 +167,7 @@ export default function DashboardOverview() {
         </motion.div>
 
         {/* Anomaly Alerts Full Width Row */}
-        <motion.div variants={itemVariants} style={{ marginBottom: 40 }}>
+        <motion.div variants={itemVariants} className="tour-anomaly-radar" style={{ marginBottom: 40 }}>
           <AnomalyAlertsWidget />
         </motion.div>
 

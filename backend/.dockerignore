@@ -1,0 +1,11 @@
+node_modules
+dist
+logs
+dev.db
+dev.db-journal
+.env
+.env.local
+.git
+.gitignore
+*.log
+npm-debug.log*

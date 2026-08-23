@@ -7,8 +7,10 @@ import {
   LogOut, BarChart3, Zap, CreditCard, Shield, Code
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import OnboardingTour from './OnboardingTour';
+import GuidedTour from '@/components/GuidedTour';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import LiveEventEngine from '@/components/LiveEventEngine';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Dynamically import heavy components
 const ChatWidget = dynamic(() => import('@/components/ChatWidget'), { ssr: false });
@@ -50,10 +52,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
     const stored = localStorage.getItem('riq_user');
     if (stored) setUser(JSON.parse(stored));
-
-    if (!localStorage.getItem('riq_onboarding_done')) {
-      setShowOnboarding(true);
-    }
 
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/config`)
       .then(res => res.json())
@@ -123,7 +121,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
         </div>
 
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav tour-sidebar-nav">
           <span className="sidebar-section-label">{t('nav.menu')}</span>
           {navItems.map(({ href, icon: Icon, translationKey }) => (
             <Link
@@ -137,7 +135,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ))}
 
           <span className="sidebar-section-label" style={{ marginTop: 12 }}>{t('nav.quick_actions')}</span>
-          <Link href="/dashboard/reports/generate" className="sidebar-nav-item" style={{ background: 'rgba(138,43,226,0.08)', border: '1px solid rgba(138,43,226,0.15)', color: 'var(--accent)' }}>
+          <Link href="/dashboard/reports/generate" className="sidebar-nav-item tour-quick-actions" style={{ background: 'rgba(138,43,226,0.08)', border: '1px solid rgba(138,43,226,0.15)', color: 'var(--accent)' }}>
             <Zap size={16} />
             {t('nav.generate_report')}
           </Link>
@@ -159,7 +157,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button
-              onClick={() => { localStorage.removeItem('riq_onboarding_done'); window.location.reload(); }}
+              onClick={() => window.dispatchEvent(new CustomEvent('riq:restart_tour'))}
               className="sidebar-nav-item"
               style={{ color: 'var(--text-secondary)' }}
             >
@@ -213,7 +211,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </header>
 
-        {children}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            style={{ width: '100%' }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Global Floating AI Chatbot */}
@@ -222,10 +231,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Command Palette Overlay */}
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
 
-      {/* Onboarding Tour */}
-      {showOnboarding && (
-        <OnboardingTour onComplete={() => setShowOnboarding(false)} />
-      )}
+      {/* Advanced Live Notifications Engine */}
+      <LiveEventEngine />
+
+      {/* Advanced React Joyride Guided Tour */}
+      <GuidedTour />
     </div>
   );
 }

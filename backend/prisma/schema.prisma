@@ -1,13 +1,13 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// This is your Prisma schema file for ReportIQ
+// Configured for Cloud PostgreSQL (Neon / Supabase / Render Postgres)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // =====================
@@ -48,8 +48,6 @@ model User {
   @@index([email])
   @@map("users")
 }
-
-
 
 // =====================
 // CLIENTS
@@ -103,15 +101,13 @@ model Integration {
   @@map("integrations")
 }
 
-
-
 // =====================
 // REPORTS
 // =====================
 model Report {
   id          String        @id @default(uuid())
   title       String
-  status      String  @default("DRAFT")
+  status      String        @default("DRAFT")
   publicSlug  String        @unique @default(uuid())
   isPublic    Boolean       @default(false)
   
@@ -130,7 +126,6 @@ model Report {
   // Team Workflows
   internalNotes String?     // JSON array of internal comments
 
-  
   // Scheduling
   scheduledAt DateTime?
   sentAt      DateTime?
@@ -155,15 +150,13 @@ model Report {
   @@map("reports")
 }
 
-
-
 // =====================
 // REPORT TEMPLATES
 // =====================
 model ReportTemplate {
   id          String   @id @default(uuid())
   name        String
-  sections    String     // Array of section configs (traffic, conversions, etc.)
+  sections    String   // Array of section configs (traffic, conversions, etc.)
   isDefault   Boolean  @default(false)
   
   userId      String
@@ -205,10 +198,8 @@ model ReportSchedule {
   @@map("report_schedules")
 }
 
-
-
 // =====================
-// AUDIT LOG (Kafka events persisted)
+// AUDIT LOG
 // =====================
 model AuditLog {
   id        String   @id @default(uuid())

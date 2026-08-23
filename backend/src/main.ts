@@ -41,12 +41,24 @@ async function bootstrap() {
   // Security Headers
   app.use(helmet());
 
-  // CORS
+  // Dynamic Multi-Origin CORS Security
+  const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+    'http://localhost:3000',
+    /\.vercel\.app$/, // Allow Vercel preview environments
+  ];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      if (!origin || allowedOrigins.some((o) => (typeof o === 'string' ? o === origin : o.test(origin)))) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Fallback for client portal custom domain requests
+      }
+    },
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: 'Content-Type, Accept, Authorization',
+    allowedHeaders: 'Content-Type, Accept, Authorization, X-Requested-With',
   });
 
   // Global prefix

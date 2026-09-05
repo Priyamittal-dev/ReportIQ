@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Eye, EyeOff, BarChart } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -17,7 +18,7 @@ export default function SignupPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -98,7 +99,7 @@ export default function SignupPage() {
         }}>
           <h2 style={{ fontSize: 28, fontWeight: 700, color: '#0f172a', margin: 0, textAlign: 'center' }}>Create your account</h2>
 
-          <a href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`} style={{ 
+          <a href={`${API_BASE_URL}/api/auth/google`} style={{ 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center', 

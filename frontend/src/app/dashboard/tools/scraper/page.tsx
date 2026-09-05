@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Search, Loader2, Globe, FileText, Tag, Link as LinkIcon, BarChart } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 export default function ScraperPage() {
   const [url, setUrl] = useState('');
@@ -15,13 +16,8 @@ export default function ScraperPage() {
     setData(null);
 
     try {
-      const token = localStorage.getItem('riq_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/scraper/analyze`, {
+      const res = await apiFetch('/api/scraper/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify({ url })
       });
       const result = await res.json();

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { AlertCircle, TrendingDown, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 interface AnomalyAlert {
   id: string;
@@ -20,10 +21,7 @@ export default function AnomalyAlertsWidget() {
   useEffect(() => {
     const fetchAlerts = async () => {
       try {
-        const token = localStorage.getItem('riq_token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/me/alerts`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await apiFetch('/api/users/me/alerts');
         if (res.ok) {
           const data = await res.json();
           setAlerts(data);

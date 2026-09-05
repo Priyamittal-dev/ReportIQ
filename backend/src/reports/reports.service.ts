@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai/ai.service';
 import * as crypto from 'crypto';
@@ -62,10 +62,26 @@ export class ReportsService {
       .catch(() => MOCK_REPORTS);
   }
 
-  async findOne(id: string, userId: string) {
+  async findAllForClient(clientId: string) {
     return this.prisma.report
+      .findMany({
+        where: { clientId },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          client: { select: { id: true, name: true, email: true } },
+        },
+      })
+      .catch(() => []);
+  }
+
+  async findOne(id: string, requesterId: string, isClient: boolean = false) {
+    const whereClause: any = isClient
+      ? { id, clientId: requesterId }
+      : { id, userId: requesterId };
+
+    const report = await this.prisma.report
       .findFirst({
-        where: { id, userId },
+        where: whereClause,
         include: {
           client: true,
           user: {
@@ -78,7 +94,15 @@ export class ReportsService {
           },
         },
       })
-      .catch(() => MOCK_REPORTS.find((r) => r.id === id) || MOCK_REPORTS[0]);
+      .catch(() => null);
+
+    if (!report) {
+      // Check mock reports if matching demo id
+      const mock = MOCK_REPORTS.find((r) => r.id === id);
+      if (mock) return mock;
+      throw new NotFoundException(`Report with ID ${id} not found or access denied`);
+    }
+    return report;
   }
 
   async findPublic(slug: string) {
@@ -100,17 +124,21 @@ export class ReportsService {
       .catch(() => null);
 
     if (!report) {
-      // Return mock public report
-      return {
-        ...MOCK_REPORTS.find((r) => r.publicSlug === slug) || MOCK_REPORTS[0],
-        client: { name: 'Bright Digital Co.', website: 'https://brightdigital.com' },
-        user: {
-          agencyName: 'Demo Agency',
-          logo: null,
-          primaryColor: '#8a2be2',
-          accentColor: '#00e5ff',
-        },
-      };
+      // Return mock only if slug matches a known mock report slug
+      const mock = MOCK_REPORTS.find((r) => r.publicSlug === slug);
+      if (mock) {
+        return {
+          ...mock,
+          client: { name: 'Bright Digital Co.', website: 'https://brightdigital.com' },
+          user: {
+            agencyName: 'Demo Agency',
+            logo: null,
+            primaryColor: '#8a2be2',
+            accentColor: '#00e5ff',
+          },
+        };
+      }
+      throw new NotFoundException(`Public report with slug '${slug}' not found`);
     }
     return report;
   }
@@ -198,8 +226,8 @@ export class ReportsService {
     newComment?: string,
     contentUpdates?: { aiSummary?: string; aiInsights?: string; aiActionPlan?: string }
   ) {
-    const report = await this.prisma.report.findUnique({ where: { id } });
-    if (!report) throw new Error('Report not found');
+    const report = await this.prisma.report.findFirst({ where: { id, userId } });
+    if (!report) throw new NotFoundException(`Report with ID ${id} not found or access denied`);
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     const author = user?.agencyName || 'Agency Member';

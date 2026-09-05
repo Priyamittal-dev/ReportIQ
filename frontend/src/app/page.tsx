@@ -1,10 +1,16 @@
 'use client';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Check, Zap, BarChart3, Mail, Globe, Clock, Shield, Brain, ArrowRight, ChevronRight, ShieldCheck, Lock, FileKey } from 'lucide-react';
+import { Check, Zap, ArrowRight, ShieldCheck, Lock, FileKey, Calendar } from 'lucide-react';
+import BookDemoModal from '../components/BookDemoModal';
+import FreeTrialModal from '../components/FreeTrialModal';
+import TimeTrackingShowcase from '../components/TimeTrackingShowcase';
+import RoiCalculator from '../components/RoiCalculator';
+import IntegrationsBar from '../components/IntegrationsBar';
 
 const features = [
   {
-    icon: '🤖',
+    icon: '⚡',
     color: 'rgba(138,43,226,0.12)',
     title: 'AI-Written Summaries',
     desc: 'GPT-4o reads your metrics and writes professional executive summaries — highlighting wins, explaining anomalies, and suggesting next steps.',
@@ -12,14 +18,14 @@ const features = [
   {
     icon: '📊',
     color: 'rgba(0,229,255,0.1)',
-    title: 'Google Analytics Integration',
-    desc: 'Connect your GA4 property with OAuth in 60 seconds. Traffic, sessions, conversions — all pulled automatically every reporting cycle.',
+    title: 'Google Analytics & Time Tracking',
+    desc: 'Connect your GA4 property and desktop activity tracker. Sessions, work hours, conversions — all pulled automatically.',
   },
   {
     icon: '📄',
     color: 'rgba(16,212,142,0.1)',
     title: 'Branded PDF Export',
-    desc: 'Every report is generated as a pixel-perfect PDF with your agency logo, brand colors, and client name — ready to send or download.',
+    desc: 'Every report is generated as a pixel-perfect PDF with your agency logo, brand colors, and client name — ready to send.',
   },
   {
     icon: '⏰',
@@ -28,13 +34,13 @@ const features = [
     desc: 'Set it once. Reports are generated and emailed to each client automatically, weekly or monthly, exactly when you want.',
   },
   {
-    icon: '🔗',
+    icon: '🌐',
     color: 'rgba(138,43,226,0.12)',
     title: 'Shareable Web Reports',
     desc: 'Every report gets a unique public link. Clients can view beautiful interactive dashboards in their browser — no PDF needed.',
   },
   {
-    icon: '🏷️',
+    icon: '🎯',
     color: 'rgba(244,63,94,0.1)',
     title: 'White-Label Ready',
     desc: 'Your agency name, your logo, your colors. Clients never see "ReportIQ" — they only see your brand delivering great reports.',
@@ -43,10 +49,10 @@ const features = [
 
 const workflow = [
   { title: 'Sign up & add your agency branding', desc: 'Upload your logo, pick your brand colors. Your clients will only ever see your brand.' },
-  { title: 'Connect data sources', desc: 'One-click Google Analytics OAuth. Or manually input metrics if not ready to connect.' },
-  { title: 'Add your clients', desc: 'Enter each client\'s name, email, and timezone. Add as many as your plan allows.' },
-  { title: 'Set a schedule', desc: 'Pick weekly or monthly delivery. Choose the day and time. That\'s it — fully automated from here.' },
-  { title: 'AI generates & sends the report', desc: 'ReportIQ pulls data, writes the summary, exports PDF, and emails the branded report to your client.' },
+  { title: 'Connect data sources & desktop tracker', desc: 'One-click GA4 OAuth and automated background time tracking.' },
+  { title: 'Add your team & clients', desc: 'Enter employee roles, client names, and timezones.' },
+  { title: 'Set a schedule', desc: 'Pick weekly or monthly delivery. Choose the day and time — fully automated from here.' },
+  { title: 'AI generates & sends reports', desc: 'ReportIQ pulls data, writes summaries, exports PDF, and emails branded reports to your client.' },
 ];
 
 const plans = [
@@ -82,41 +88,76 @@ const plans = [
 ];
 
 export default function LandingPage() {
+  const [isDemoOpen, setIsDemoOpen] = useState(false);
+  const [isTrialOpen, setIsTrialOpen] = useState(false);
+
   return (
     <main style={{ background: 'var(--bg-0)', minHeight: '100vh' }}>
       {/* Navbar */}
       <nav className="landing-nav">
-        <a href="/" className="landing-logo">Report<span style={{ color: 'var(--accent-2)' }}>IQ</span></a>
+        <a href="/" className="landing-logo">
+          Report<span style={{ color: '#00e5ff' }}>IQ</span>
+        </a>
+        
         <ul className="landing-nav-links">
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how-it-works">How it works</a></li>
-          <li><a href="#pricing">Pricing</a></li>
+          <li>
+            <a href="#features" style={{ color: '#ffffff' }}>Features</a>
+          </li>
+          <li>
+            <a href="#time-tracking" style={{ color: '#ffffff' }}>Time Tracking</a>
+          </li>
+          <li>
+            <a href="#how-it-works" style={{ color: '#ffffff' }}>How it works</a>
+          </li>
+          <li>
+            <a href="#pricing" style={{ color: '#ffffff' }}>Pricing</a>
+          </li>
         </ul>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Link href="/auth/login" className="btn btn-secondary btn-sm">Log in</Link>
-          <Link href="/auth/signup" className="btn btn-gradient btn-sm">Start free →</Link>
+
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button
+            onClick={() => setIsDemoOpen(true)}
+            className="btn-nav-demo"
+            style={{ gap: 6 }}
+          >
+            <Calendar size={14} />
+            <span>Book a Demo</span>
+          </button>
+
+          <button
+            onClick={() => setIsTrialOpen(true)}
+            className="btn btn-gradient btn-sm"
+            style={{ gap: 6, fontWeight: 700, boxShadow: '0 4px 14px rgba(0, 229, 255, 0.35)' }}
+          >
+            <Zap size={14} />
+            <span>Try for Free</span>
+          </button>
         </div>
       </nav>
 
       {/* Hero */}
       <section className="hero-section">
         <div className="hero-bg" />
-        <div className="hero-eyebrow">🚀 AI-Powered Reporting Platform</div>
+        <div className="hero-eyebrow">⚡ AI-Powered Reporting & Time Tracking Platform</div>
         <h1 className="hero-title">
-          Stop spending <span className="gradient-word">6 hours</span> on<br />client reports every week
+          Stop spending <span className="gradient-word">6 hours</span> on<br />workforce reports every week
         </h1>
         <p className="hero-subtitle">
-          ReportIQ connects to Google Analytics, generates AI-written summaries, and automatically emails branded reports to every client — on your schedule.
+          ReportIQ connects to Google Analytics and desktop time tracking, generates AI-written summaries, and automatically delivers branded reports to every client.
         </p>
-        <div className="hero-cta-group">
-          <Link href="/auth/signup" className="btn btn-gradient btn-lg">
-            Start for free — no card needed
+        
+        {/* CTAs with Book Demo & Free Trial */}
+        <div className="hero-cta-group" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button onClick={() => setIsTrialOpen(true)} className="btn btn-gradient btn-lg" style={{ gap: 8 }}>
+            <span>Start Free 14-Day Trial</span>
             <ArrowRight size={18} />
-          </Link>
-          <Link href="/report/bright-digital-may-2024" className="btn btn-secondary btn-lg">
-            See sample report →
-          </Link>
+          </button>
+          <button onClick={() => setIsDemoOpen(true)} className="btn btn-secondary btn-lg" style={{ gap: 8 }}>
+            <Calendar size={18} />
+            <span>Book a Live Demo</span>
+          </button>
         </div>
+
         <div className="hero-social-proof">
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div className="hero-proof-avatars">
@@ -126,22 +167,33 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <p className="hero-proof-text"><strong>250+ agencies</strong> already automating their reports</p>
+            <p className="hero-proof-text"><strong>250+ agencies & teams</strong> already automating their work hours</p>
           </div>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
-            ⭐⭐⭐⭐⭐ &nbsp;"Saved us 30 hours a month. Best SaaS we've bought this year."
-          </p>
         </div>
       </section>
 
-      {/* Features */}
+      {/* Integrations Bar */}
+      <IntegrationsBar />
+
+      {/* Interactive Time Tracking & Workforce Intelligence Suite (MaxelTracker Model) */}
+      <TimeTrackingShowcase
+        onOpenDemo={() => setIsDemoOpen(true)}
+        onOpenTrial={() => setIsTrialOpen(true)}
+      />
+
+      {/* ROI Calculator (MaxelTracker Style) */}
+      <RoiCalculator
+        onOpenDemo={() => setIsDemoOpen(true)}
+      />
+
+      {/* General Features */}
       <section className="section section-center" id="features">
         <span className="section-tag">Features</span>
         <h2 className="section-title">Everything your agency needs</h2>
         <p className="section-subtitle">From data ingestion to branded delivery — fully automated, AI-powered, and white-labeled.</p>
         <div className="feature-grid">
           {features.map((f, i) => (
-            <div key={i} className="feature-card animate-in" style={{ animationDelay: `${i * 0.07}s` }}>
+            <div key={i} className="feature-card animate-in" style={{ animationDelay: (i * 0.07) + 's' }}>
               <div className="feature-icon" style={{ background: f.color }}>{f.icon}</div>
               <h3 className="feature-title">{f.title}</h3>
               <p className="feature-desc">{f.desc}</p>
@@ -157,32 +209,12 @@ export default function LandingPage() {
         <p className="section-subtitle">Five simple steps to fully automated client reporting.</p>
         <div className="workflow-steps">
           {workflow.map((step, i) => (
-            <div key={i} className="workflow-step animate-in" style={{ animationDelay: `${i * 0.1}s` }}>
+            <div key={i} className="workflow-step animate-in" style={{ animationDelay: (i * 0.1) + 's' }}>
               <div className="workflow-num">{i + 1}</div>
               <div className="workflow-content">
                 <h4>{step.title}</h4>
                 <p>{step.desc}</p>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ROI stats */}
-      <section className="section section-center">
-        <span className="section-tag">ROI</span>
-        <h2 className="section-title">The math is simple</h2>
-        <div className="card-grid card-grid-4" style={{ maxWidth: 900, margin: '48px auto 0' }}>
-          {[
-            { value: '6–8h', label: 'saved per week', sub: 'per person' },
-            { value: '$1,500', label: 'in labour saved', sub: 'per month avg.' },
-            { value: '3x', label: 'client retention', sub: 'vs no reporting' },
-            { value: '60s', label: 'to connect GA4', sub: 'via OAuth' },
-          ].map((s, i) => (
-            <div key={i} className="card" style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 42, fontWeight: 800, letterSpacing: '-0.03em', background: 'var(--gradient-brand)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{s.value}</div>
-              <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 6 }}>{s.label}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>{s.sub}</div>
             </div>
           ))}
         </div>
@@ -195,11 +227,10 @@ export default function LandingPage() {
         </span>
         <h2 className="section-title">Bank-grade security & compliance</h2>
         <p className="section-subtitle" style={{ maxWidth: 700, margin: '0 auto 40px' }}>
-          Your client data is your most valuable asset. We treat it that way. ReportIQ is audited and certified to meet the highest global security standards.
+          ReportIQ is audited and certified to meet the highest global security standards.
         </p>
-        
+
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24, justifyContent: 'center', maxWidth: 1000, margin: '0 auto' }}>
-          
           <div className="card" style={{ flex: '1 1 250px', display: 'flex', alignItems: 'center', gap: 16, padding: '24px', background: 'var(--bg-1)' }}>
             <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(138,43,226,0.1)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ShieldCheck size={24} />
@@ -229,7 +260,6 @@ export default function LandingPage() {
               <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Data Privacy Guaranteed</div>
             </div>
           </div>
-
         </div>
       </section>
 
@@ -237,7 +267,7 @@ export default function LandingPage() {
       <section className="section section-center" id="pricing" style={{ background: 'var(--bg-1)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <span className="section-tag">Pricing</span>
         <h2 className="section-title">Simple, transparent pricing</h2>
-        <p className="section-subtitle">5–6× cheaper than AgencyAnalytics. Cancel anytime.</p>
+        <p className="section-subtitle">Cancel anytime. 14-day free trial on all plans.</p>
         <div className="pricing-grid">
           {plans.map((p, i) => (
             <div key={i} className={`pricing-card ${p.popular ? 'popular' : ''}`}>
@@ -252,9 +282,13 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-              <Link href="/auth/signup" className={`btn ${p.popular ? 'btn-primary' : 'btn-secondary'}`} style={{ width: '100%', justifyContent: 'center' }}>
+              <button
+                onClick={() => setIsTrialOpen(true)}
+                className={`btn ${p.popular ? 'btn-primary' : 'btn-secondary'}`}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
                 {p.price === 'Free' ? 'Get started free' : 'Start 14-day trial'}
-              </Link>
+              </button>
             </div>
           ))}
         </div>
@@ -263,12 +297,17 @@ export default function LandingPage() {
       {/* Final CTA */}
       <section className="section section-center">
         <div style={{ maxWidth: 600, margin: '0 auto', padding: '40px', background: 'linear-gradient(135deg, rgba(138,43,226,0.1), rgba(0,229,255,0.05))', border: '1px solid var(--border-accent)', borderRadius: 24 }}>
-          <h2 className="section-title" style={{ marginBottom: 16 }}>Ready to automate your reporting?</h2>
-          <p className="section-subtitle" style={{ marginBottom: 36 }}>Start free today. No credit card. No code. Just connect and report.</p>
-          <Link href="/auth/signup" className="btn btn-gradient btn-lg">
-            Create your free account
-            <ArrowRight size={18} />
-          </Link>
+          <h2 className="section-title" style={{ marginBottom: 16 }}>Ready to automate your team's tracking & reporting?</h2>
+          <p className="section-subtitle" style={{ marginBottom: 36 }}>Start free today or schedule a live demo with our engineers.</p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => setIsTrialOpen(true)} className="btn btn-gradient btn-lg">
+              Start Free Trial
+              <ArrowRight size={18} />
+            </button>
+            <button onClick={() => setIsDemoOpen(true)} className="btn btn-secondary btn-lg">
+              Book a Demo
+            </button>
+          </div>
         </div>
       </section>
 
@@ -279,32 +318,32 @@ export default function LandingPage() {
             <span style={{ fontSize: 20, fontWeight: 700, background: 'var(--gradient-brand)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               ReportIQ
             </span>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Contact: 7807221279</p>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Contact: +91 7807221279</p>
             <p style={{ color: 'var(--text-secondary)' }}>Email: <a href="mailto:gargr0109@gmail.com" style={{ color: 'var(--accent-2)' }}>gargr0109@gmail.com</a></p>
           </div>
           
           <div className="footer-links" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <strong>Product</strong>
             <a href="#features">Features</a>
+            <a href="#time-tracking">Time Tracking</a>
             <a href="#pricing">Pricing</a>
-            <Link href="/auth/login">Login</Link>
-          </div>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <strong>Preferences</strong>
-            <select style={{ background: 'var(--bg-2)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: '6px', padding: '6px 12px' }}>
-              <option value="en">English</option>
-              <option value="es">Español</option>
-              <option value="fr">Français</option>
-              <option value="de">Deutsch</option>
-              <option value="hi">हिंदी</option>
-            </select>
+            <button onClick={() => setIsDemoOpen(true)} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--text-secondary)', cursor: 'pointer', textAlign: 'left', font: 'inherit' }}>
+              Book Demo
+            </button>
           </div>
         </div>
-        <p style={{ fontSize: 12, color: 'var(--text-muted)', width: '100%', maxWidth: '1000px', borderTop: '1px solid var(--border)', paddingTop: '20px', textAlign: 'center' }}>
-          © 2024 ReportIQ. Built with ❤️ and AI. All rights reserved.
-        </p>
       </footer>
+
+      {/* Modals */}
+      <BookDemoModal
+        isOpen={isDemoOpen}
+        onClose={() => setIsDemoOpen(false)}
+      />
+
+      <FreeTrialModal
+        isOpen={isTrialOpen}
+        onClose={() => setIsTrialOpen(false)}
+      />
     </main>
   );
 }

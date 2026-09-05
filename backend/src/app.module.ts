@@ -43,6 +43,7 @@ import { MaintenanceGuard } from './common/guards/maintenance.guard';
     AuditLogsModule,
     ScraperModule,
     WhatsappModule,
+    BillingModule,
   ],
   controllers: [AppController],
   providers: [

@@ -17,11 +17,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: string; email: string }) {
+  async validate(payload: { sub: string; email: string; isClient?: boolean }) {
+    if (payload.isClient) {
+      return { id: payload.sub, email: payload.email, isClient: true };
+    }
+
     const user = await this.authService.validateUser(payload.sub);
     if (!user) {
-      // Mock fallback — allow access with token payload
-      return { id: payload.sub, email: payload.email };
+      if (payload.sub?.startsWith('demo') || payload.sub?.startsWith('mock')) {
+        return { id: payload.sub, email: payload.email };
+      }
+      throw new UnauthorizedException('User account no longer exists or session expired');
     }
     return user;
   }

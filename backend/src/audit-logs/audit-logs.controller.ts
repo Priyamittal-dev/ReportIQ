@@ -2,7 +2,7 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('audit-logs')
-// @UseGuards(AuthGuard('jwt')) // Temporarily disabled for ease of testing
+@UseGuards(AuthGuard('jwt'))
 export class AuditLogsController {
   
   @Get()

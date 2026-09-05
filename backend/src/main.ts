@@ -8,6 +8,7 @@ import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
+    rawBody: true,
     logger: WinstonModule.createLogger({
       transports: [
         new winston.transports.Console({
@@ -50,10 +51,15 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || allowedOrigins.some((o) => (typeof o === 'string' ? o === origin : o.test(origin)))) {
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) {
+        return callback(null, true);
+      }
+      const isAllowed = allowedOrigins.some((o) => (typeof o === 'string' ? o === origin : o.test(origin)));
+      if (isAllowed) {
         callback(null, true);
       } else {
-        callback(null, true); // Fallback for client portal custom domain requests
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
       }
     },
     credentials: true,

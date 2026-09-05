@@ -1,12 +1,17 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Put, Res } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ReportsService } from './reports.service';
+import { PdfService } from './pdf.service';
+import { AgencyGuard } from '../common/guards/agency.guard';
 
 @ApiTags('Reports')
 @Controller('reports')
 export class ReportsController {
-  constructor(private reportsService: ReportsService) {}
+  constructor(
+    private reportsService: ReportsService,
+    private pdfService: PdfService,
+  ) {}
 
   @Get('public/:slug')
   @ApiOperation({ summary: 'Get public shareable report by slug (Spotlight API)' })
@@ -17,8 +22,11 @@ export class ReportsController {
   @Get()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'List all reports for agency' })
+  @ApiOperation({ summary: 'List all reports for agency or client' })
   findAll(@Req() req: any) {
+    if (req.user?.isClient) {
+      return this.reportsService.findAllForClient(req.user.id);
+    }
     return this.reportsService.findAll(req.user.id);
   }
 
@@ -27,12 +35,35 @@ export class ReportsController {
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Get a specific report' })
   findOne(@Param('id') id: string, @Req() req: any) {
-    return this.reportsService.findOne(id, req.user.id);
+    return this.reportsService.findOne(id, req.user.id, !!req.user?.isClient);
+  }
+
+  @Get(':id/pdf')
+  @ApiOperation({ summary: 'Download or view report PDF' })
+  async downloadPdf(@Param('id') id: string, @Req() req: any, @Res() res: any) {
+    let report = await this.reportsService.findPublic(id).catch(() => null);
+    if (!report && req.user?.id) {
+      report = await this.reportsService.findOne(id, req.user.id, !!req.user?.isClient).catch(() => null);
+    }
+    if (!report) {
+      report = await this.reportsService.findOne(id, 'demo').catch(() => null);
+    }
+
+    if (!report) {
+      return res.status(404).json({ message: `Report ${id} not found` });
+    }
+
+    const html = this.pdfService.generateReportHtml(report);
+    const buffer = await this.pdfService.generatePdfFromHtml(html);
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="report-${id}.pdf"`);
+    return res.send(buffer);
   }
 
   @Put(':id/workflow')
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AgencyGuard)
   @ApiOperation({ summary: 'Update report workflow status, comments, and content' })
   updateWorkflow(
     @Param('id') id: string,
@@ -48,7 +79,7 @@ export class ReportsController {
 
   @Post('generate')
   @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), AgencyGuard)
   @ApiOperation({ summary: 'Generate AI-powered report for a client' })
   generate(
     @Body()
@@ -86,3 +117,4 @@ export class ReportsController {
     );
   }
 }
+

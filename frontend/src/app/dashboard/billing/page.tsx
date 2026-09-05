@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { CreditCard, Check, AlertCircle } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 export default function BillingPage() {
   const [loading, setLoading] = useState(false);
@@ -8,13 +9,8 @@ export default function BillingPage() {
   const handleCheckout = async (plan: string) => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('riq_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/billing/checkout`, {
+      const res = await apiFetch('/api/billing/checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify({ plan }),
       });
       

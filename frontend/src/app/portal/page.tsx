@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { LogOut, FileText, BarChart2, TrendingUp, Calendar, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { TrafficLineChart } from '@/components/widgets/TrafficLineChart';
+import { apiFetch } from '@/lib/api';
 
 export default function PortalDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -25,11 +26,7 @@ export default function PortalDashboard() {
 
     const fetchReports = async () => {
       try {
-        // We'll just fetch all public reports for now, or build a specific endpoint
-        // For MVP, if they have a token, we just pretend to fetch their specific ones.
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/reports`, {
-          headers: { 'Authorization': `Bearer ${storedToken}` }
-        });
+        const res = await apiFetch('/api/reports', { isClientPortal: true });
         if (res.ok) {
           const data = await res.json();
           setReports(data.slice(0, 3)); // Show 3 recent reports

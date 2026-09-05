@@ -33,6 +33,14 @@ export class AuthController {
     return this.authService.portalLogin(dto);
   }
 
+  @Post('demo-login')
+  @HttpCode(200)
+  @ApiOperation({ summary: '1-Click instant demo account login' })
+  demoLogin() {
+    return this.authService.demoLogin();
+  }
+
+
   @Get('verify')
   @ApiOperation({ summary: 'Verify email token' })
   verify(@Req() req: any) {

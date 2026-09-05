@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
 import { useTranslation } from '@/components/providers/LanguageProvider';
+import { apiFetch } from '@/lib/api';
 
 export default function SettingsPage() {
   const { t, language, setLanguage } = useTranslation();
@@ -34,13 +35,8 @@ export default function SettingsPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const token = localStorage.getItem('riq_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/me`, {
+      const res = await apiFetch('/api/users/me', {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
         body: JSON.stringify(form)
       });
       if (res.ok) {

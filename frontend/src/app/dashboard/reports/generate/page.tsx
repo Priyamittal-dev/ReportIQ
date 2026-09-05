@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { apiFetch } from '@/lib/api';
 
 export default function GenerateReportPage() {
   const router = useRouter();
@@ -26,10 +27,7 @@ export default function GenerateReportPage() {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const token = localStorage.getItem('riq_token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/clients`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await apiFetch('/api/clients');
         if (res.ok) {
           const data = await res.json();
           setClients(data);
@@ -52,8 +50,6 @@ export default function GenerateReportPage() {
     
     setGenerating(true);
     try {
-      const token = localStorage.getItem('riq_token');
-      
       const metricsData = {
         period: form.period,
         sessions: parseInt(form.sessions, 10),
@@ -66,12 +62,8 @@ export default function GenerateReportPage() {
         previousConversions: parseInt(form.previousConversions, 10),
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports/generate`, {
+      const res = await apiFetch('/api/reports/generate', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
         body: JSON.stringify({
           clientId: form.clientId,
           metricsData,

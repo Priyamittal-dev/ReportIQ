@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClientDto, UpdateClientDto } from './dto/client.dto';
+import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 
 const MOCK_CLIENTS = [
@@ -58,7 +59,7 @@ export class ClientsService {
   }
 
   async findOne(id: string, userId: string) {
-    return this.prisma.client
+    const client = await this.prisma.client
       .findFirst({
         where: { id, userId },
         include: {
@@ -75,13 +76,22 @@ export class ClientsService {
           },
         },
       })
-      .catch(() => MOCK_CLIENTS.find((c) => c.id === id) || MOCK_CLIENTS[0]);
+      .catch(() => null);
+
+    if (!client) {
+      throw new NotFoundException(`Client with ID ${id} not found or access denied`);
+    }
+    return client;
   }
 
   async create(userId: string, dto: CreateClientDto) {
+    const dataToSave: any = { ...dto, userId };
+    if (dataToSave.portalPassword) {
+      dataToSave.portalPassword = await bcrypt.hash(dataToSave.portalPassword, 12);
+    }
     return this.prisma.client
       .create({
-        data: { ...dto, userId },
+        data: dataToSave,
       })
       .catch(() => ({
         id: 'mock-' + crypto.randomUUID(),
@@ -92,14 +102,37 @@ export class ClientsService {
   }
 
   async update(id: string, userId: string, dto: UpdateClientDto) {
-    return this.prisma.client
-      .update({ where: { id }, data: dto })
-      .catch(() => ({ id, ...dto }));
+    const existing = await this.prisma.client.findFirst({
+      where: { id, userId },
+    }).catch(() => null);
+
+    if (!existing) {
+      throw new NotFoundException(`Client with ID ${id} not found or access denied`);
+    }
+
+    const dataToSave: any = { ...dto };
+    if (dataToSave.portalPassword) {
+      dataToSave.portalPassword = await bcrypt.hash(dataToSave.portalPassword, 12);
+    }
+    return this.prisma.client.update({
+      where: { id },
+      data: dataToSave,
+    });
   }
 
   async remove(id: string, userId: string) {
-    return this.prisma.client
-      .delete({ where: { id } })
-      .catch(() => ({ deleted: true, id }));
+    const existing = await this.prisma.client.findFirst({
+      where: { id, userId },
+    }).catch(() => null);
+
+    if (!existing) {
+      throw new NotFoundException(`Client with ID ${id} not found or access denied`);
+    }
+
+    return this.prisma.client.delete({
+      where: { id },
+    });
   }
 }
+
+

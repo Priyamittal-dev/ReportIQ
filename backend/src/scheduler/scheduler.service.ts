@@ -45,7 +45,14 @@ export class SchedulerService {
         this.prisma.client.findUnique({ where: { id: schedule.clientId } }),
       ]);
 
-      if (!user || !client) return;
+      if (!user || !client) {
+        this.logger.warn(`User or client not found for schedule ${schedule.id}, deactivating schedule.`);
+        await this.prisma.reportSchedule.update({
+          where: { id: schedule.id },
+          data: { isActive: false },
+        }).catch(() => null);
+        return;
+      }
 
       // Generate report with mock metrics (real implementation would pull from GA)
       const mockMetrics = {
@@ -85,6 +92,16 @@ export class SchedulerService {
       this.logger.log(`✅ Auto-report sent to ${client.email}`);
     } catch (error) {
       this.logger.error(`Schedule ${schedule.id} failed: ${error.message}`);
+      // Advance nextRunAt even on failure to avoid infinite retry loops every hour
+      try {
+        const nextRun = this.getNextRunTime(schedule);
+        await this.prisma.reportSchedule.update({
+          where: { id: schedule.id },
+          data: { lastRunAt: new Date(), nextRunAt: nextRun },
+        });
+      } catch (err) {
+        this.logger.error(`Failed to reschedule job ${schedule.id}: ${err.message}`);
+      }
     }
   }
 

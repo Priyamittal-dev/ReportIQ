@@ -7,9 +7,37 @@ export class ScraperService {
   private readonly logger = new Logger(ScraperService.name);
 
   async scrapeUrl(url: string) {
+    if (!url || typeof url !== 'string' || !url.trim()) {
+      throw new BadRequestException('A valid website URL is required.');
+    }
+
     try {
       // Basic URL validation
-      const targetUrl = new URL(url.startsWith('http') ? url : `https://${url}`);
+      const trimmed = url.trim();
+      const targetUrl = new URL(trimmed.startsWith('http://') || trimmed.startsWith('https://') ? trimmed : `https://${trimmed}`);
+
+      // Ensure protocol is HTTP or HTTPS
+      if (targetUrl.protocol !== 'http:' && targetUrl.protocol !== 'https:') {
+        throw new BadRequestException('Only HTTP and HTTPS protocols are supported.');
+      }
+
+      // SSRF Protection: Block internal, loopback, and cloud metadata addresses
+      const hostname = targetUrl.hostname.toLowerCase();
+      const isPrivateOrLoopback =
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '0.0.0.0' ||
+        hostname === '::1' ||
+        hostname === '169.254.169.254' ||
+        hostname.endsWith('.internal') ||
+        hostname.endsWith('.local') ||
+        /^10\./.test(hostname) ||
+        /^192\.168\./.test(hostname) ||
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname);
+
+      if (isPrivateOrLoopback) {
+        throw new BadRequestException('Scraping internal, private, or metadata network endpoints is restricted.');
+      }
       
       const response = await axios.get(targetUrl.toString(), {
         headers: {
@@ -17,7 +45,8 @@ export class ScraperService {
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.5'
         },
-        timeout: 10000 // 10s timeout
+        timeout: 10000, // 10s timeout
+        maxRedirects: 0, // Prevent SSRF via open HTTP redirects to internal/metadata endpoints
       });
 
       const html = response.data;

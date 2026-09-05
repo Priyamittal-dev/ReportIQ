@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import TiltCard3D from '@/components/TiltCard3D';
 import AnomalyAlertsWidget from '@/components/AnomalyAlertsWidget';
+import { apiFetch } from '@/lib/api';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -56,13 +57,10 @@ export default function DashboardOverview() {
 
     const fetchDashboard = async () => {
       try {
-        const token = localStorage.getItem('riq_token');
-        const headers = { 'Authorization': `Bearer ${token}` };
-        
         const [statsRes, reportsRes, logsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/me/stats`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports`, { headers }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/audit-logs`, { headers }),
+          apiFetch('/api/users/me/stats'),
+          apiFetch('/api/reports'),
+          apiFetch('/api/audit-logs'),
         ]);
 
         if (statsRes.ok) setStats(await statsRes.json());

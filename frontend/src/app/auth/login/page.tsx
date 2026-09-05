@@ -11,12 +11,33 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [form, setForm] = useState({ email: '', password: '' });
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_URL}/api/auth/demo-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Demo login failed');
+      localStorage.setItem('riq_token', data.accessToken);
+      localStorage.setItem('riq_user', JSON.stringify(data.user));
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
@@ -87,11 +108,29 @@ export default function LoginPage() {
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.1)',
           display: 'flex',
           flexDirection: 'column',
-          gap: 24
+          gap: 16
         }}>
           <h2 style={{ fontSize: 28, fontWeight: 700, color: '#0f172a', margin: 0, textAlign: 'center' }}>Welcome back</h2>
 
-          <a href={`${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`} style={{ 
+          <button onClick={handleDemoLogin} type="button" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            background: 'linear-gradient(135deg, #8a2be2 0%, #4f46e5 100%)',
+            color: 'white',
+            border: 'none',
+            borderRadius: 12,
+            padding: '14px',
+            fontWeight: 700,
+            fontSize: 15,
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(138, 43, 226, 0.3)'
+          }}>
+            ⚡ 1-Click Live Demo Evaluation Login
+          </button>
+
+          <a href={`${API_URL}/api/auth/google`} style={{ 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center', 
@@ -108,6 +147,7 @@ export default function LoginPage() {
             <img src="https://www.google.com/favicon.ico" alt="Google" width={20} height={20} />
             Sign in with Google
           </a>
+
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '8px 0' }}>
             <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />

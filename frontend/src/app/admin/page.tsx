@@ -35,9 +35,19 @@ export default function AdminDashboard() {
 
   const [users, setUsers] = useState<any[]>([]);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+  const getHeaders = () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('riq_token') : '';
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token || ''}`,
+    };
+  };
+
   const fetchUsers = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/users`);
+      const res = await fetch(`${API_URL}/api/admin/users`, { headers: getHeaders() });
       if (res.ok) setUsers(await res.json());
     } catch (e) {
       console.error(e);
@@ -46,9 +56,9 @@ export default function AdminDashboard() {
 
   const updateUser = async (id: string, updates: any) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/users/${id}`, {
+      await fetch(`${API_URL}/api/admin/users/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify(updates)
       });
       fetchUsers();
@@ -60,7 +70,7 @@ export default function AdminDashboard() {
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/config`);
+      const res = await fetch(`${API_URL}/api/admin/config`, { headers: getHeaders() });
       if (res.ok) {
         const data = await res.json();
         setMaintenanceMode(data.maintenanceMode);
@@ -74,9 +84,9 @@ export default function AdminDashboard() {
     const newValue = !maintenanceMode;
     setMaintenanceMode(newValue);
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/config`, {
+      await fetch(`${API_URL}/api/admin/config`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ maintenanceMode: newValue })
       });
     } catch (e) {
@@ -88,7 +98,7 @@ export default function AdminDashboard() {
   const fetchData = async () => {
     setRefreshing(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/admin/stats`);
+      const res = await fetch(`${API_URL}/api/admin/stats`, { headers: getHeaders() });
       const data = await res.json();
       setStats(data);
       if (data.recentUsers) setRecentUsers(data.recentUsers);
@@ -105,6 +115,7 @@ export default function AdminDashboard() {
     fetchData(); 
     fetchUsers();
   }, []);
+
 
   const kpiCards = [
     { title: 'Total Users', value: stats.stats?.[0]?.value || '—', change: '+12%', trend: 'up', icon: <Users size={22} />, color: '#3b82f6', bg: 'rgba(59,130,246,0.1)' },

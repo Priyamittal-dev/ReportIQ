@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Plug, BarChart, MessageCircle, Globe, CheckCircle, Search, Mail, ShoppingCart, DollarSign, PenTool, Layout, Video } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<any[]>([]);
@@ -9,10 +10,7 @@ export default function IntegrationsPage() {
   useEffect(() => {
     const fetchIntegrations = async () => {
       try {
-        const token = localStorage.getItem('riq_token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await apiFetch('/api/integrations');
         if (res.ok) setIntegrations(await res.json());
       } catch (err) {
         console.error(err);
@@ -58,10 +56,7 @@ export default function IntegrationsPage() {
       alert('In a real app, this would trigger the Google OAuth flow for Analytics access.');
     } else if (id === 'gads') {
       try {
-        const token = localStorage.getItem('riq_token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/google-ads/auth`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await apiFetch('/api/integrations/google-ads/auth');
         const data = await res.json();
         if (data.url) window.location.href = data.url;
       } catch (err) {
@@ -69,10 +64,7 @@ export default function IntegrationsPage() {
       }
     } else if (id === 'meta') {
       try {
-        const token = localStorage.getItem('riq_token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/integrations/meta-ads/auth`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await apiFetch('/api/integrations/meta-ads/auth');
         const data = await res.json();
         if (data.url) window.location.href = data.url;
       } catch (err) {

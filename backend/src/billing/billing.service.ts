@@ -27,8 +27,9 @@ export class BillingService {
 
     // Get price ID based on plan
     let priceId = '';
-    if (plan === 'Pro') priceId = this.config.get<string>('STRIPE_PRICE_PRO') || 'price_pro_placeholder';
-    else if (plan === 'Agency') priceId = this.config.get<string>('STRIPE_PRICE_AGENCY') || 'price_agency_placeholder';
+    const normalizedPlan = (plan || '').toUpperCase();
+    if (normalizedPlan === 'PRO') priceId = this.config.get<string>('STRIPE_PRICE_PRO') || 'price_pro_placeholder';
+    else if (normalizedPlan === 'AGENCY') priceId = this.config.get<string>('STRIPE_PRICE_AGENCY') || 'price_agency_placeholder';
     else throw new HttpException('Invalid plan selected', HttpStatus.BAD_REQUEST);
 
     // Create or get Stripe Customer

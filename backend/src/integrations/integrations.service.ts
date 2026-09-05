@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import axios from 'axios';
 
@@ -87,6 +87,14 @@ export class IntegrationsService {
   }
 
   async disconnect(id: string, userId: string) {
+    const existing = await this.prisma.integration.findFirst({
+      where: { id, userId },
+    }).catch(() => null);
+
+    if (!existing) {
+      throw new NotFoundException(`Integration with ID ${id} not found or access denied`);
+    }
+
     return this.prisma.integration
       .delete({ where: { id } })
       .catch(() => ({ deleted: true, id }));

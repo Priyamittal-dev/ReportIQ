@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams, useParams } from 'next/navigation';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 export default function IntegrationCallbackPage() {
   const router = useRouter();
@@ -19,14 +20,9 @@ export default function IntegrationCallbackPage() {
     }
 
     const endpoint = provider === 'google' ? '/api/integrations/google-ads/callback' : '/api/integrations/meta-ads/callback';
-    const token = localStorage.getItem('riq_token');
 
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, {
+    apiFetch(endpoint, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
       body: JSON.stringify({ code })
     })
     .then(res => {

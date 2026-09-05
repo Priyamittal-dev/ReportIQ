@@ -3,20 +3,25 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FileText, Plus, ExternalLink } from 'lucide-react';
 
+import { apiFetch } from '@/lib/api';
+
 export default function ReportsPage() {
   const [reports, setReports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const token = localStorage.getItem('riq_token');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) setReports(await res.json());
-      } catch (err) {
+        const res = await apiFetch('/api/reports');
+        if (res.ok) {
+          setReports(await res.json());
+        } else {
+          setError('Failed to fetch reports from server.');
+        }
+      } catch (err: any) {
         console.error('Failed to load reports', err);
+        setError(err.message || 'Network error occurred while fetching reports.');
       } finally {
         setLoading(false);
       }
@@ -40,6 +45,11 @@ export default function ReportsPage() {
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           {loading ? (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Loading reports...</div>
+          ) : error ? (
+            <div style={{ padding: 60, textAlign: 'center' }}>
+              <p style={{ color: 'var(--danger, #ef4444)', marginBottom: 16 }}>{error}</p>
+              <button onClick={() => window.location.reload()} className="btn btn-secondary btn-sm">Retry</button>
+            </div>
           ) : reports.length === 0 ? (
             <div style={{ padding: 60, textAlign: 'center' }}>
               <div style={{ width: 64, height: 64, background: 'rgba(255,255,255,0.03)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'var(--text-muted)' }}>

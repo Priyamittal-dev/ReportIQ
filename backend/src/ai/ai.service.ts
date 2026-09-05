@@ -42,13 +42,15 @@ export class AiService {
     }
 
     try {
-      const sessionChange = metrics.previousSessions && metrics.sessions
-      ? Math.round(((metrics.sessions - metrics.previousSessions) / metrics.previousSessions) * 100)
-      : null;
+      const sessionChange =
+        metrics.previousSessions && metrics.previousSessions > 0 && metrics.sessions !== undefined
+          ? Math.round(((metrics.sessions - metrics.previousSessions) / metrics.previousSessions) * 100)
+          : null;
 
-    const convChange = metrics.previousConversions && metrics.conversions
-      ? Math.round(((metrics.conversions - metrics.previousConversions) / metrics.previousConversions) * 100)
-      : null;
+      const convChange =
+        metrics.previousConversions && metrics.previousConversions > 0 && metrics.conversions !== undefined
+          ? Math.round(((metrics.conversions - metrics.previousConversions) / metrics.previousConversions) * 100)
+          : null;
 
       const prompt = `
 You are an expert digital marketing analyst writing a client performance report for ${agencyName}.
@@ -99,9 +101,10 @@ Return JSON format:
   ): { summary: string; insights: string[] } {
     const sessions = metrics.sessions || 3842;
     const convRate = metrics.conversionRate || 3.2;
-    const sessionChange = metrics.previousSessions
-      ? Math.round(((sessions - metrics.previousSessions) / metrics.previousSessions) * 100)
-      : 14;
+    const sessionChange =
+      metrics.previousSessions && metrics.previousSessions > 0
+        ? Math.round(((sessions - metrics.previousSessions) / metrics.previousSessions) * 100)
+        : 14;
 
     return {
       summary: `${clientName} had an excellent performance period, achieving ${sessions.toLocaleString()} sessions — a ${sessionChange > 0 ? '+' : ''}${sessionChange}% improvement over the previous period. Organic search continues to be the primary traffic driver, contributing to a conversion rate of ${convRate}%. The site's engagement metrics are strong with above-industry-average session duration, indicating high-quality content resonating with the target audience. Overall, the digital marketing strategy is delivering measurable and consistent growth.`,

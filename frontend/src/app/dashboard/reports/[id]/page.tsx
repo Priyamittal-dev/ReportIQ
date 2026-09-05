@@ -3,6 +3,7 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, ExternalLink, Sparkles, Plus, Trash2, Smartphone } from 'lucide-react';
 import ClientPortalPreview from '@/components/ClientPortalPreview';
+import { apiFetch } from '@/lib/api';
 
 export default function InternalReportDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -24,10 +25,7 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
 
   const fetchReport = async () => {
     try {
-      const token = localStorage.getItem('riq_token');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports/${id}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await apiFetch(`/api/reports/${id}`);
       if (res.ok) {
         const data = await res.json();
         setReport(data);
@@ -57,8 +55,6 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
   const handleSave = async () => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('riq_token');
-      
       const payload = {
         status,
         newComment,
@@ -67,12 +63,8 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
         aiActionPlan: JSON.stringify(actionPlan)
       };
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports/${id}/workflow`, {
+      const res = await apiFetch(`/api/reports/${id}/workflow`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
         body: JSON.stringify(payload)
       });
 

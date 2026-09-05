@@ -262,29 +262,30 @@ async function testSpotlight() {
 // ==========================================================
 async function testAdmin() {
   await test('GET /api/admin/stats — Admin Stats', async () => {
-    const r = await req('GET', '/admin/stats');
+    const r = await req('GET', '/admin/stats', null, authHeaders());
     assert(r.status === 200, `Status ${r.status}`);
     assert(r.data.stats, 'No stats');
   });
 
   await test('GET /api/admin/users — Admin Users', async () => {
-    const r = await req('GET', '/admin/users');
+    const r = await req('GET', '/admin/users', null, authHeaders());
     assert(r.status === 200, `Status ${r.status}`);
     assert(Array.isArray(r.data), 'Not array');
   });
 
   await test('GET /api/admin/config — Admin Config', async () => {
-    const r = await req('GET', '/admin/config');
+    const r = await req('GET', '/admin/config', null, authHeaders());
     assert(r.status === 200, `Status ${r.status}`);
     assert(r.data.maintenanceMode !== undefined, 'No maintenanceMode field');
   });
 
   await test('PUT /api/admin/config — Toggle Maintenance', async () => {
-    const r = await req('PUT', '/admin/config', { maintenanceMode: false });
+    const r = await req('PUT', '/admin/config', { maintenanceMode: false }, authHeaders());
     assert(r.status === 200, `Status ${r.status}`);
     assert(r.data.success === true, 'Not successful');
   });
 }
+
 
 // ==========================================================
 // 10. AUDIT LOGS

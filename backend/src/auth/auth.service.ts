@@ -19,8 +19,9 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto) {
+    const email = dto.email.toLowerCase().trim();
     const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { email },
     }).catch(() => null);
 
     if (existing) {
@@ -32,9 +33,9 @@ export class AuthService {
 
     const user = await this.prisma.user.create({
       data: { 
-        email: dto.email, 
+        email, 
         passwordHash, 
-        agencyName: dto.agencyName,
+        agencyName: dto.agencyName.trim(),
         verificationToken,
         emailVerified: false
       },
@@ -60,8 +61,9 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
+    const email = dto.email.toLowerCase().trim();
     const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { email },
     }).catch(() => null);
 
     if (!user || !user.passwordHash) {
@@ -89,7 +91,55 @@ export class AuthService {
     };
   }
 
+  async demoLogin() {
+    const demoEmail = 'demo.agency@reportiq.app';
+    let user: any = await this.prisma.user.findUnique({
+      where: { email: demoEmail },
+    }).catch(() => null);
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email: demoEmail,
+          agencyName: 'Apex Growth Marketing (Demo)',
+          plan: 'AGENCY',
+          emailVerified: true,
+          primaryColor: '#8a2be2',
+          accentColor: '#00e5ff',
+        },
+      }).catch(() => null);
+    }
+
+    const effectiveUser = user || {
+      id: 'demo-user-id',
+      email: demoEmail,
+      agencyName: 'Apex Growth Marketing (Demo)',
+      plan: 'AGENCY',
+      logo: null,
+      primaryColor: '#8a2be2',
+      accentColor: '#00e5ff',
+    };
+
+    const tokens = this.generateTokens(effectiveUser.id, effectiveUser.email);
+    this.logger.log(`1-Click Demo Login: ${effectiveUser.email}`);
+
+    return {
+      user: {
+        id: effectiveUser.id,
+        email: effectiveUser.email,
+        agencyName: effectiveUser.agencyName,
+        plan: effectiveUser.plan,
+        logo: effectiveUser.logo || null,
+        primaryColor: effectiveUser.primaryColor || '#8a2be2',
+        accentColor: effectiveUser.accentColor || '#00e5ff',
+      },
+      ...tokens,
+    };
+  }
+
+
   async googleLogin(profile: any) {
+
     let user = await this.prisma.user.findUnique({
       where: { googleId: profile.id },
     }).catch(() => null);
@@ -175,8 +225,9 @@ export class AuthService {
   }
 
   async portalLogin(dto: LoginDto) {
+    const email = dto.email.toLowerCase().trim();
     const client = await this.prisma.client.findFirst({
-      where: { email: dto.email },
+      where: { email },
       include: { user: true } // Need the agency details for the portal branding
     }).catch(() => null);
 
@@ -184,7 +235,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid client email or password.');
     }
 
-    if (dto.password !== client.portalPassword) { // We should hash this in a real app, but plain is fine for MVP
+    let isMatch = false;
+    if (client.portalPassword.startsWith('$2a$') || client.portalPassword.startsWith('$2b$')) {
+      isMatch = await bcrypt.compare(dto.password, client.portalPassword);
+    } else {
+      isMatch = dto.password === client.portalPassword;
+    }
+
+    if (!isMatch) {
       throw new UnauthorizedException('Invalid client email or password.');
     }
 
@@ -198,12 +256,13 @@ export class AuthService {
         name: client.name,
         isClient: true,
         agency: {
-          name: client.user.agencyName,
-          logo: client.user.logo,
-          primaryColor: client.user.primaryColor,
+          name: client.user?.agencyName || 'Agency',
+          logo: client.user?.logo,
+          primaryColor: client.user?.primaryColor || '#8a2be2',
         }
       },
       ...tokens,
     };
   }
 }
+

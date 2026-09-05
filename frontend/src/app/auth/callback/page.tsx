@@ -2,6 +2,7 @@
 import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/api';
 
 function CallbackContent() {
   const router = useRouter();
@@ -18,7 +19,7 @@ function CallbackContent() {
     localStorage.setItem('riq_token', token);
 
     // Fetch user details to save to local storage
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
+    fetch(`${API_BASE_URL}/api/auth/me`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

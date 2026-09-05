@@ -63,7 +63,7 @@ export class UsersService {
         this.prisma.report.count({ where: { userId } }),
         this.prisma.report.count({ where: { userId, status: 'SENT' } }),
       ]);
-      return { clientCount, reportCount, sentCount, hoursaved: reportCount * 2 };
+      return { clientCount, reportCount, sentCount, hoursSaved: reportCount * 2 };
     } catch {
       return { clientCount: 5, reportCount: 12, sentCount: 10, hoursSaved: 24 };
     }

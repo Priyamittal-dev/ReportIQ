@@ -7,6 +7,7 @@ import { SourceBarChart } from '@/components/widgets/SourceBarChart';
 import { ForecastChart } from '@/components/widgets/ForecastChart';
 import { BrainCircuit } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { API_BASE_URL } from '@/lib/api';
 
 // Same default as the builder
 const DEFAULT_LAYOUT = [
@@ -44,7 +45,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ slug: s
 
     const fetchReport = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reports/public/${slug}`);
+        const res = await fetch(`${API_BASE_URL}/api/reports/public/${slug}`);
         if (res.ok) setReport(await res.json());
       } catch (err) {
         console.error(err);

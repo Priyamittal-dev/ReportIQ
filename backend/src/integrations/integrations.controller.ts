@@ -2,10 +2,11 @@ import { Controller, Get, Post, Delete, Body, Param, UseGuards, Req } from '@nes
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { IntegrationsService } from './integrations.service';
+import { AgencyGuard } from '../common/guards/agency.guard';
 
 @ApiTags('Integrations')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), AgencyGuard)
 @Controller('integrations')
 export class IntegrationsController {
   constructor(private integrationsService: IntegrationsService) {}

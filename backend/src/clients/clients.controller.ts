@@ -3,10 +3,11 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { ClientsService } from './clients.service';
 import { CreateClientDto, UpdateClientDto } from './dto/client.dto';
+import { AgencyGuard } from '../common/guards/agency.guard';
 
 @ApiTags('Clients')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), AgencyGuard)
 @Controller('clients')
 export class ClientsController {
   constructor(private clientsService: ClientsService) {}

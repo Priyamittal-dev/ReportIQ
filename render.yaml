@@ -5,7 +5,7 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: cd backend && npm install --include=dev && npx prisma db push && npx nest build
+    buildCommand: cd backend && npm install --include=dev && node prepare-db.js && npx nest build
     startCommand: cd backend && npm run start:prod
     envVars:
       - key: NODE_ENV

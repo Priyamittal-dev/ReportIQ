@@ -31,9 +31,13 @@ jobs:
 
       - name: Generate Prisma Client
         run: npx prisma generate
+        env:
+          DATABASE_URL: "file:./dev.db"
 
       - name: Build Backend
         run: npm run build
+        env:
+          DATABASE_URL: "file:./dev.db"
 
   frontend-test-and-build:
     name: Frontend CI (Next.js)

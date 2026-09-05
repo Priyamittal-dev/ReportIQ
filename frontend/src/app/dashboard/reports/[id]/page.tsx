@@ -287,7 +287,7 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: 14 }}>Client ID</span>
-                <span style={{ color: 'var(--text-primary)', fontSize: 14, fontFamily: 'var(--font-mono)' }}>{report.clientId.slice(0,8)}</span>
+                <span style={{ color: 'var(--text-primary)', fontSize: 14, fontFamily: 'var(--font-mono)' }}>{report.clientId ? report.clientId.slice(0, 8) : 'N/A'}</span>
               </div>
             </div>
           </div>

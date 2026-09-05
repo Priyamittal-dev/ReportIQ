@@ -1,11 +1,12 @@
 import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+const StripeClient = require('stripe');
 
 @Injectable()
 export class BillingService {
-  private stripe: Stripe;
+  private stripe: any;
   private readonly logger = new Logger(BillingService.name);
 
   constructor(
@@ -16,8 +17,8 @@ export class BillingService {
     if (!secretKey) {
       this.logger.warn('STRIPE_SECRET_KEY is missing. Billing will not work correctly.');
     }
-    this.stripe = new Stripe(secretKey || 'sk_test_placeholder', {
-      apiVersion: '2023-10-16' as any,
+    this.stripe = new StripeClient(secretKey || 'sk_test_placeholder', {
+      apiVersion: '2023-10-16',
     });
   }
 

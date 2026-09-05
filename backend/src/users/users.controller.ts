@@ -35,4 +35,16 @@ export class UsersController {
   getAlerts(@Req() req: any) {
     return this.usersService.getAlerts(req.user.id);
   }
+
+  @Get('me/custom-domain')
+  @ApiOperation({ summary: 'Get agency custom domain CNAME status' })
+  getCustomDomain(@Req() req: any) {
+    return this.usersService.getCustomDomain(req.user.id);
+  }
+
+  @Post('me/custom-domain')
+  @ApiOperation({ summary: 'Save and verify agency custom domain' })
+  setCustomDomain(@Req() req: any, @Body() body: { domain: string }) {
+    return this.usersService.setCustomDomain(req.user.id, body.domain);
+  }
 }

@@ -65,6 +65,24 @@ export class IntegrationsController {
     return this.integrationsService.exchangeMetaCode(req.user.id, body.code);
   }
 
+  @Post('shopify')
+  @ApiOperation({ summary: 'Connect Shopify e-commerce store' })
+  connectShopify(@Body() body: { shopDomain: string; accessToken: string }, @Req() req: any) {
+    return this.integrationsService.connectShopify(req.user.id, body.shopDomain, body.accessToken);
+  }
+
+  @Post('linkedin-ads')
+  @ApiOperation({ summary: 'Connect LinkedIn Ads account' })
+  connectLinkedIn(@Body() body: { accountId: string; accessToken?: string }, @Req() req: any) {
+    return this.integrationsService.connectLinkedIn(req.user.id, body.accountId, body.accessToken);
+  }
+
+  @Post('slack')
+  @ApiOperation({ summary: 'Connect Slack Incoming Webhook for agency alerts' })
+  connectSlack(@Body() body: { webhookUrl: string; channelName?: string }, @Req() req: any) {
+    return this.integrationsService.connectSlack(req.user.id, body.webhookUrl, body.channelName);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Disconnect an integration' })
   disconnect(@Param('id') id: string, @Req() req: any) {

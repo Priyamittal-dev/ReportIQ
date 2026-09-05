@@ -116,5 +116,38 @@ export class ReportsController {
       body.title || (body.clientName ? `${body.clientName} — Report` : undefined),
     );
   }
+
+  @Get(':id/slides')
+  @ApiOperation({ summary: 'Get interactive presentation slide deck for report' })
+  getSlides(@Param('id') id: string) {
+    return this.reportsService.getSlides(id);
+  }
+
+  @Post(':id/approve')
+  @ApiOperation({ summary: 'Submit client strategy and budget approval/sign-off' })
+  recordApproval(
+    @Param('id') id: string,
+    @Body() body: {
+      decision: 'APPROVED' | 'REVISIONS_REQUESTED';
+      signatoryName: string;
+      signatoryEmail?: string;
+      notes?: string;
+      budgetApproved?: number;
+    },
+  ) {
+    return this.reportsService.recordApproval(id, body);
+  }
+
+  @Post(':id/dispatch')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), AgencyGuard)
+  @ApiOperation({ summary: 'Multi-channel dispatch (Slack, WhatsApp, Email)' })
+  dispatch(
+    @Param('id') id: string,
+    @Body() body: { channel: 'whatsapp' | 'slack' | 'email'; target?: string; message?: string },
+  ) {
+    return this.reportsService.dispatchMultiChannel(id, body);
+  }
 }
+
 

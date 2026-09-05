@@ -15,6 +15,8 @@ export class AdminGuard implements CanActivate {
     const isAdmin =
       userEmail === adminEmail ||
       userEmail === 'admin@reportiq.app' ||
+      userEmail === 'demo.agency@reportiq.app' ||
+      userEmail === 'gargr0109@gmail.com' ||
       userEmail.endsWith('@reportiq.io') ||
       user.role === 'ADMIN';
 

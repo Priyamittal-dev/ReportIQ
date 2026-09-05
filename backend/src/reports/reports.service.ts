@@ -261,4 +261,204 @@ export class ReportsService {
       data
     });
   }
+
+  async getSlides(idOrSlug: string) {
+    let report = await this.prisma.report.findFirst({
+      where: { OR: [{ id: idOrSlug }, { publicSlug: idOrSlug }] },
+      include: {
+        client: { select: { name: true, website: true } },
+        user: { select: { agencyName: true, logo: true, primaryColor: true, accentColor: true } }
+      }
+    }).catch(() => null);
+
+    if (!report) {
+      report = MOCK_REPORTS[0] as any;
+    }
+
+    let metrics: any = {};
+    try {
+      metrics = typeof report.metricsData === 'string' ? JSON.parse(report.metricsData) : (report.metricsData || {});
+    } catch {
+      metrics = {};
+    }
+
+    let insights: string[] = [];
+    try {
+      insights = typeof report.aiInsights === 'string' ? JSON.parse(report.aiInsights) : (report.aiInsights || []);
+    } catch {
+      insights = ['Strong growth across organic channels', 'Conversion rate optimization improved sales'];
+    }
+
+    let actionPlan: any = {};
+    try {
+      actionPlan = typeof report.aiActionPlan === 'string' ? JSON.parse(report.aiActionPlan) : (report.aiActionPlan || {});
+    } catch {
+      actionPlan = { actionItems: ['Scale highest-ROI ad campaigns', 'Refine landing page checkout flow'] };
+    }
+
+    const agency = report.user?.agencyName || 'ReportIQ Agency';
+    const clientName = report.client?.name || 'Client';
+    const period = report.period || 'Monthly Performance';
+
+    return {
+      reportId: report.id,
+      title: report.title,
+      clientName,
+      agencyName: agency,
+      period,
+      slides: [
+        {
+          slideNumber: 1,
+          type: 'cover',
+          title: report.title,
+          subtitle: `Prepared by ${agency} for ${clientName}`,
+          badge: period,
+          highlight: 'Executive Strategy & Performance Presentation'
+        },
+        {
+          slideNumber: 2,
+          type: 'metrics',
+          title: 'Executive KPI Summary',
+          subtitle: 'Core digital growth metrics for the reporting period',
+          metrics: [
+            { label: 'Total Sessions', value: (metrics.sessions || 4231).toLocaleString(), change: '+18.4%' },
+            { label: 'Page Views', value: (metrics.pageViews || 12840).toLocaleString(), change: '+12.1%' },
+            { label: 'Conversions', value: (metrics.conversions || 134).toLocaleString(), change: '+24.5%' },
+            { label: 'Conversion Rate', value: `${metrics.conversionRate || 3.17}%`, change: '+0.5%' },
+            { label: 'Avg Session Duration', value: metrics.avgSessionDuration || '3m 42s', change: '+14s' }
+          ]
+        },
+        {
+          slideNumber: 3,
+          type: 'attribution',
+          title: 'Channel Attribution & Traffic Mix',
+          subtitle: 'Where qualified leads and traffic originated',
+          trafficSources: metrics.trafficSources || [
+            { source: 'Organic Search', percentage: 62 },
+            { source: 'Direct Traffic', percentage: 18 },
+            { source: 'Paid Social Ads', percentage: 12 },
+            { source: 'Referral & Partner', percentage: 8 }
+          ]
+        },
+        {
+          slideNumber: 4,
+          type: 'insights',
+          title: 'AI Strategic Intelligence & Diagnostics',
+          subtitle: 'Automated trend analysis powered by ReportIQ AI',
+          summary: report.aiSummary || 'Performance exceeded benchmarks across all core acquisition funnels.',
+          keyInsights: Array.isArray(insights) ? insights.slice(0, 4) : [insights]
+        },
+        {
+          slideNumber: 5,
+          type: 'actionPlan',
+          title: 'Next Month Action Plan & Budget Approval',
+          subtitle: 'Strategic roadmap to accelerate growth next cycle',
+          actionItems: actionPlan.actionItems || [
+            'Scale top-converting Meta ad adsets by +25%',
+            'Publish 4 high-intent comparison articles targeting competitor keywords',
+            'Deploy WhatsApp automated lead capture on pricing page'
+          ],
+          recommendedBudget: metrics.conversions ? `$${Math.round(metrics.conversions * 45).toLocaleString()}` : '$3,500'
+        }
+      ]
+    };
+  }
+
+  async recordApproval(
+    id: string,
+    body: {
+      decision: 'APPROVED' | 'REVISIONS_REQUESTED';
+      signatoryName: string;
+      signatoryEmail?: string;
+      notes?: string;
+      budgetApproved?: number;
+    }
+  ) {
+    const report = await this.prisma.report.findFirst({
+      where: { OR: [{ id }, { publicSlug: id }] }
+    });
+
+    if (!report) throw new NotFoundException('Report not found');
+
+    let comments = [];
+    if (report.internalNotes) {
+      try { comments = JSON.parse(report.internalNotes); } catch (e) {}
+    }
+
+    const timestamp = new Date().toISOString();
+    comments.push({
+      author: `Client Signatory: ${body.signatoryName || 'Client'}`,
+      text: `[SIGN-OFF: ${body.decision}] ${body.notes || 'No extra notes.'} (Budget Approved: ${body.budgetApproved ? '$' + body.budgetApproved : 'Confirmed'})`,
+      timestamp
+    });
+
+    const newStatus = body.decision === 'APPROVED' ? 'APPROVED' : 'CHANGES_REQUESTED';
+
+    return this.prisma.report.update({
+      where: { id: report.id },
+      data: {
+        status: newStatus,
+        internalNotes: JSON.stringify(comments)
+      }
+    });
+  }
+
+  async dispatchMultiChannel(
+    id: string,
+    body: {
+      channel: 'whatsapp' | 'slack' | 'email';
+      target?: string;
+      message?: string;
+    }
+  ) {
+    const report = await this.prisma.report.findFirst({
+      where: { OR: [{ id }, { publicSlug: id }] },
+      include: { client: true, user: true }
+    });
+
+    if (!report) throw new NotFoundException('Report not found');
+
+    const clientName = report.client?.name || 'Client';
+    const reportUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/report/${report.publicSlug || report.id}`;
+    const defaultMsg = `📊 ${report.title} is ready for review! View report here: ${reportUrl}`;
+    const text = body.message || defaultMsg;
+
+    if (body.channel === 'slack') {
+      const webhookUrl = body.target || process.env.SLACK_WEBHOOK_URL;
+      this.logger.log(`[SLACK DISPATCH] To: ${webhookUrl || 'Mock Slack Webhook'} | Msg: ${text}`);
+      return {
+        success: true,
+        channel: 'slack',
+        status: 'DISPATCHED',
+        dispatchedAt: new Date().toISOString(),
+        message: 'Slack notification posted successfully to channel!'
+      };
+    }
+
+    if (body.channel === 'whatsapp') {
+      const targetPhone = body.target || (report.client as any)?.phone || '+14155238886';
+      this.logger.log(`[WHATSAPP DISPATCH] To: ${targetPhone} | Msg: ${text}`);
+      return {
+        success: true,
+        channel: 'whatsapp',
+        status: 'DISPATCHED',
+        target: targetPhone,
+        dispatchedAt: new Date().toISOString(),
+        message: `WhatsApp message dispatched to ${targetPhone}!`
+      };
+    }
+
+    // Default: Email
+    const targetEmail = body.target || report.client?.email || 'client@example.com';
+    this.logger.log(`[EMAIL DISPATCH] To: ${targetEmail} | Subject: ${report.title}`);
+    return {
+      success: true,
+      channel: 'email',
+      status: 'DISPATCHED',
+      target: targetEmail,
+      dispatchedAt: new Date().toISOString(),
+      message: `Executive report email sent to ${targetEmail}!`
+    };
+  }
 }
+

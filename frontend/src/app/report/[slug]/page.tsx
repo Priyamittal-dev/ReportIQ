@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect, use } from 'react';
-import { ArrowUpRight, ArrowDownRight, Sparkles, Download, BarChart2 } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Sparkles, Download, BarChart2, Presentation } from 'lucide-react';
 import Link from 'next/link';
 import { TrafficLineChart } from '@/components/widgets/TrafficLineChart';
 import { SourceBarChart } from '@/components/widgets/SourceBarChart';
 import { ForecastChart } from '@/components/widgets/ForecastChart';
+import SlideDeckModal from '@/components/SlideDeckModal';
 import { BrainCircuit } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { API_BASE_URL } from '@/lib/api';
@@ -35,6 +36,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ slug: s
   const [report, setReport] = useState<any>(null);
   const [layout, setLayout] = useState<any[]>(DEFAULT_LAYOUT);
   const [loading, setLoading] = useState(true);
+  const [deckOpen, setDeckOpen] = useState(false);
 
   useEffect(() => {
     // Attempt to load the custom layout from the agency's storage to simulate dynamic templates
@@ -108,11 +110,17 @@ export default function PublicReportPage({ params }: { params: Promise<{ slug: s
             ) : (
               <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)' }}>{c.agencyName}</div>
             )}
-            <button className="btn btn-secondary btn-sm print:hidden" style={{ whiteSpace: 'nowrap' }} onClick={() => window.print()}>
-              <Download size={14} /> Export PDF
-            </button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-secondary btn-sm print:hidden" onClick={() => setDeckOpen(true)} style={{ background: 'rgba(138, 43, 226, 0.15)', color: '#c084fc', border: '1px solid rgba(138, 43, 226, 0.3)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Presentation size={14} /> Slide Deck Mode
+              </button>
+              <button className="btn btn-secondary btn-sm print:hidden" style={{ whiteSpace: 'nowrap' }} onClick={() => window.print()}>
+                <Download size={14} /> Export PDF
+              </button>
+            </div>
           </div>
         </motion.div>
+        <SlideDeckModal open={deckOpen} onClose={() => setDeckOpen(false)} reportId={report?.id} reportTitle={report?.title} clientName={report?.client?.name} />
 
         {/* Dynamic Template Renderer */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 32, marginTop: 40 }}>

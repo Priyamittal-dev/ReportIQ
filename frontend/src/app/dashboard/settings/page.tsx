@@ -15,6 +15,8 @@ export default function SettingsPage() {
     customDomain: '',
   });
   const [saving, setSaving] = useState(false);
+  const [domainStatus, setDomainStatus] = useState<any>(null);
+  const [verifyingDomain, setVerifyingDomain] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('riq_user');
@@ -29,7 +31,38 @@ export default function SettingsPage() {
         customDomain: parsed.customDomain || '',
       });
     }
+
+    // Fetch live custom domain status from backend
+    apiFetch('/api/users/me/custom-domain')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data) setDomainStatus(data); })
+      .catch(() => {});
   }, []);
+
+  const handleVerifyDomain = async () => {
+    if (!form.customDomain.trim()) {
+      alert('Please enter a custom domain (e.g. reports.youragency.com)');
+      return;
+    }
+    setVerifyingDomain(true);
+    try {
+      const res = await apiFetch('/api/users/me/custom-domain', {
+        method: 'POST',
+        body: JSON.stringify({ domain: form.customDomain.trim() })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDomainStatus(data);
+        alert(data.message || 'Domain verified successfully!');
+      } else {
+        alert(data.message || 'Verification failed. Please check your DNS records.');
+      }
+    } catch {
+      alert('Network error connecting to domain verification service.');
+    } finally {
+      setVerifyingDomain(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,15 +158,26 @@ export default function SettingsPage() {
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 24 }}>Configure custom domains and email senders for full brand control.</p>
             
             <div className="form-group" style={{ marginBottom: 20 }}>
-              <label className="form-label">Custom Domain (CNAME)</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <label className="form-label" style={{ marginBottom: 0 }}>Custom Domain (CNAME)</label>
+                {domainStatus?.status === 'VERIFIED' && (
+                  <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 12, background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', fontWeight: 700 }}>
+                    ✓ SSL Active & Verified
+                  </span>
+                )}
+              </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 <input className="form-input" type="text" placeholder="reports.youragency.com" 
                   value={form.customDomain}
                   onChange={e => setForm(p => ({ ...p, customDomain: e.target.value }))}
                 />
-                <button type="button" className="btn btn-secondary" onClick={() => alert('Domain verification requires DNS propagation. Check back in 15 minutes.')}>Verify</button>
+                <button type="button" className="btn btn-secondary" onClick={handleVerifyDomain} disabled={verifyingDomain}>
+                  {verifyingDomain ? 'Verifying...' : 'Verify Domain'}
+                </button>
               </div>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>Point a CNAME record to <code>cname.reportiq.app</code></p>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>
+                Point a CNAME record to <code>cname.reportiq.app</code> and TXT to <code>{domainStatus?.txtRecord || 'reportiq-verify=agency'}</code>
+              </p>
             </div>
 
             <div className="form-group">

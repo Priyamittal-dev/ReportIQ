@@ -1,8 +1,11 @@
 'use client';
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Save, ExternalLink, Sparkles, Plus, Trash2, Smartphone } from 'lucide-react';
+import { ArrowLeft, Save, ExternalLink, Sparkles, Plus, Trash2, Smartphone, Presentation, Send, Swords } from 'lucide-react';
 import ClientPortalPreview from '@/components/ClientPortalPreview';
+import SlideDeckModal from '@/components/SlideDeckModal';
+import MultiChannelDispatchModal from '@/components/MultiChannelDispatchModal';
+import CompetitorBenchmarkWidget from '@/components/CompetitorBenchmarkWidget';
 import { apiFetch } from '@/lib/api';
 
 export default function InternalReportDetails({ params }: { params: Promise<{ id: string }> }) {
@@ -13,6 +16,8 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
   const [status, setStatus] = useState('DRAFT');
   const [saving, setSaving] = useState(false);
   const [simulatorOpen, setSimulatorOpen] = useState(false);
+  const [slideDeckOpen, setSlideDeckOpen] = useState(false);
+  const [dispatchOpen, setDispatchOpen] = useState(false);
 
   // Editable content state
   const [aiSummary, setAiSummary] = useState('');
@@ -96,6 +101,21 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
         onClose={() => setSimulatorOpen(false)} 
         reportSlug={report?.publicSlug} 
       />
+      <SlideDeckModal
+        open={slideDeckOpen}
+        onClose={() => setSlideDeckOpen(false)}
+        reportId={report?.id}
+        reportTitle={report?.title}
+        clientName={report?.client?.name}
+      />
+      <MultiChannelDispatchModal
+        open={dispatchOpen}
+        onClose={() => setDispatchOpen(false)}
+        reportId={report?.id}
+        reportTitle={report?.title}
+        clientName={report?.client?.name}
+        clientEmail={report?.client?.email}
+      />
       <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-0)', position: 'sticky', top: 64, zIndex: 40, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
         <div>
           <Link href="/dashboard/reports" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)', textDecoration: 'none', fontSize: 13, marginBottom: 12 }}>
@@ -104,7 +124,13 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
           <h1 className="page-title">{report.title}</h1>
           <p className="page-subtitle">Client: {report.client?.name}</p>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <button onClick={() => setSlideDeckOpen(true)} className="btn btn-secondary" style={{ background: 'rgba(138, 43, 226, 0.12)', border: '1px solid rgba(138, 43, 226, 0.3)', color: '#c084fc' }}>
+            <Presentation size={16} /> Slide Deck Mode
+          </button>
+          <button onClick={() => setDispatchOpen(true)} className="btn btn-secondary" style={{ background: 'rgba(0, 229, 255, 0.12)', border: '1px solid rgba(0, 229, 255, 0.3)', color: '#22d3ee' }}>
+            <Send size={16} /> Dispatch Alerts
+          </button>
           {report.isPublic && (
             <button onClick={() => setSimulatorOpen(true)} className="btn btn-secondary">
               <Smartphone size={16} /> Preview Client View
@@ -118,8 +144,9 @@ export default function InternalReportDetails({ params }: { params: Promise<{ id
 
       <div className="page-body" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: 32 }}>
         
-        {/* Left Col: Editor */}
+        {/* Left Col: Editor & Benchmarking */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <CompetitorBenchmarkWidget clientName={report?.client?.name} clientWebsite={report?.client?.website} />
           
           <div className="card" style={{ border: '1px solid var(--border-accent)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, color: 'var(--accent)' }}>

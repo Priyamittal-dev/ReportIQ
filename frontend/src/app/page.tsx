@@ -318,8 +318,8 @@ export default function LandingPage() {
             <span style={{ fontSize: 20, fontWeight: 700, background: 'var(--gradient-brand)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               ReportIQ
             </span>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Contact: +91 7807221279</p>
-            <p style={{ color: 'var(--text-secondary)' }}>Email: <a href="mailto:gargr0109@gmail.com" style={{ color: 'var(--accent-2)' }}>gargr0109@gmail.com</a></p>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Contact: +91 8708095922</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Email: <a href="mailto:priya1997mittal@gmail.com" style={{ color: 'var(--accent-2)' }}>priya1997mittal@gmail.com</a></p>
           </div>
           
           <div className="footer-links" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

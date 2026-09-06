@@ -1,7 +1,7 @@
 # ReportIQ 🚀
 ### Enterprise AI-Powered Client Reporting Platform for Agencies & Freelancers
 
-[![CI/CD Pipeline](https://github.com/rahulgarg55/ReportIQ/actions/workflows/ci.yml/badge.svg)](https://github.com/rahulgarg55/ReportIQ/actions)
+[![CI/CD Pipeline](https://github.com/Priyamittal-dev/ReportIQ/actions/workflows/ci.yml/badge.svg)](https://github.com/Priyamittal-dev/ReportIQ/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![NestJS](https://img.shields.io/badge/NestJS-11.0-E0234E?logo=nestjs)](https://nestjs.com)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2-black?logo=next.js)](https://nextjs.org)
@@ -93,7 +93,7 @@ ReportIQ Architecture
 
 ```bash
 # Clone the repository
-git clone https://github.com/rahulgarg55/ReportIQ.git
+git clone https://github.com/Priyamittal-dev/ReportIQ.git
 cd reportiq
 
 # Install backend dependencies
@@ -188,4 +188,4 @@ ReportIQ is pre-configured for automated continuous deployment on push to `main`
 
 Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
 
-Built with ❤️ for digital agencies by **Rahul Garg**.
+Built with ❤️ for digital agencies by **Priyanka Mittal**.

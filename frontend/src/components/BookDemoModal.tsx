@@ -35,7 +35,7 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
   };
 
   const handleWhatsAppNotify = () => {
-    const msg = `Hi Rahul! I scheduled a ReportIQ product demo:
+    const msg = `Hi Priyanka! I scheduled a ReportIQ product demo:
 
 • Name: ${formData.name}
 • Company: ${formData.company}
@@ -44,7 +44,7 @@ export default function BookDemoModal({ isOpen, onClose }: BookDemoModalProps) {
 • Time Slot: ${formData.timeSlot}
 
 Looking forward to the walkthrough!`;
-    window.open(`https://wa.me/917807221279?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/918708095922?text=${encodeURIComponent(msg)}`, '_blank');
     onClose();
   };
 
@@ -219,7 +219,7 @@ Looking forward to the walkthrough!`;
             </p>
 
             <div style={{ padding: 14, borderRadius: 12, background: 'var(--bg-2)', border: '1px solid var(--border)', textAlign: 'left', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, fontFamily: 'var(--font-mono)' }}>
-              <div>• <strong>Host:</strong> Rahul Garg (Full-Stack & Systems Lead)</div>
+              <div>• <strong>Host:</strong> Priyanka Mittal (Full-Stack & Systems Lead)</div>
               <div>• <strong>Meeting Link:</strong> Sent to {formData.email}</div>
               <div>• <strong>Agenda:</strong> Automated timesheets, idle timeouts, and ROI recovery</div>
             </div>

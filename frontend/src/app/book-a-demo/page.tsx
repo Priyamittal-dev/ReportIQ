@@ -20,14 +20,14 @@ export default function BookDemoPage() {
   };
 
   const handleWhatsApp = () => {
-    const msg = `Hi Rahul! I booked a ReportIQ Demo from the website:
+    const msg = `Hi Priyanka! I booked a ReportIQ Demo from the website:
 
 • Name: ${formData.name}
 • Company: ${formData.company}
 • Team Size: ${formData.teamSize}
 • Date: ${formData.date}
 • Time Slot: ${formData.timeSlot}`;
-    window.open(`https://wa.me/917807221279?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/918708095922?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   return (
@@ -117,7 +117,7 @@ export default function BookDemoPage() {
               </p>
               <button onClick={handleWhatsApp} className="btn btn-primary" style={{ background: '#10b981', borderColor: '#10b981', gap: 6, margin: '10px auto 0' }}>
                 <MessageSquare size={16} />
-                <span>Notify Rahul on WhatsApp (+91 7807221279)</span>
+                <span>Notify Priyanka on WhatsApp (+91 8708095922)</span>
               </button>
             </div>
           )}

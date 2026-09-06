@@ -4,7 +4,7 @@ import { Users, Mail, Shield, UserPlus, Trash2 } from 'lucide-react';
 
 export default function TeamManagementPage() {
   const [teamMembers, setTeamMembers] = useState([
-    { id: 1, name: 'Rahul Garg', email: 'gargr0109@gmail.com', role: 'Owner', status: 'Active' }
+    { id: 1, name: 'Priyanka Mittal', email: 'priya1997mittal@gmail.com', role: 'Owner', status: 'Active' }
   ]);
   const [newEmail, setNewEmail] = useState('');
   const [newRole, setNewRole] = useState('Editor');

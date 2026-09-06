@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import TiltCard3D from '@/components/TiltCard3D';
 import AnomalyAlertsWidget from '@/components/AnomalyAlertsWidget';
+import ClientMarginRadar from '@/components/ClientMarginRadar';
 import { apiFetch } from '@/lib/api';
 
 const containerVariants = {
@@ -164,6 +165,11 @@ export default function DashboardOverview() {
 
         </motion.div>
 
+                {/* Client Profitability & Retainer Margin Radar */}
+        <motion.div variants={itemVariants} style={{ marginBottom: 32 }}>
+          <ClientMarginRadar />
+        </motion.div>
+
         {/* Anomaly Alerts Full Width Row */}
         <motion.div variants={itemVariants} className="tour-anomaly-radar" style={{ marginBottom: 40 }}>
           <AnomalyAlertsWidget />
@@ -260,3 +266,4 @@ export default function DashboardOverview() {
     </motion.div>
   );
 }
+

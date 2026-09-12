@@ -115,6 +115,18 @@ export default function LandingPage() {
         </ul>
 
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <Link href="/auth/login" className="btn btn-secondary btn-sm" style={{ gap: 6, fontWeight: 700 }}>
+            <span>Sign In</span>
+          </Link>
+          <a
+            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/google`}
+            className="btn btn-secondary btn-sm"
+            style={{ gap: 6, fontWeight: 700, border: '1px solid #e2e8f0', color: '#ffffff' }}
+          >
+            <img src="https://www.google.com/favicon.ico" alt="Google" width={14} height={14} />
+            <span>Google Sign In</span>
+          </a>
+
           <button
             onClick={() => setIsDemoOpen(true)}
             className="btn-nav-demo"

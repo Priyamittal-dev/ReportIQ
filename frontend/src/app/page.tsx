@@ -115,18 +115,6 @@ export default function LandingPage() {
         </ul>
 
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <Link href="/auth/login" className="btn btn-secondary btn-sm" style={{ gap: 6, fontWeight: 700 }}>
-            <span>Sign In</span>
-          </Link>
-          <a
-            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/auth/google`}
-            className="btn btn-secondary btn-sm"
-            style={{ gap: 6, fontWeight: 700, border: '1px solid #e2e8f0', color: '#ffffff' }}
-          >
-            <img src="https://www.google.com/favicon.ico" alt="Google" width={14} height={14} />
-            <span>Google Sign In</span>
-          </a>
-
           <button
             onClick={() => setIsDemoOpen(true)}
             className="btn-nav-demo"
@@ -330,8 +318,8 @@ export default function LandingPage() {
             <span style={{ fontSize: 20, fontWeight: 700, background: 'var(--gradient-brand)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               ReportIQ
             </span>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Contact: +91 8708095922</p>
-            <p style={{ color: 'var(--text-secondary)' }}>Email: <a href="mailto:priya1997mittal@gmail.com" style={{ color: 'var(--accent-2)' }}>priya1997mittal@gmail.com</a></p>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>Contact: +91 7807221279</p>
+            <p style={{ color: 'var(--text-secondary)' }}>Email: <a href="mailto:gargr0109@gmail.com" style={{ color: 'var(--accent-2)' }}>gargr0109@gmail.com</a></p>
           </div>
           
           <div className="footer-links" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

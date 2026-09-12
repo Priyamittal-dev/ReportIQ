@@ -245,11 +245,5 @@ export class IntegrationsService {
       }
     }).catch(() => ({ id: 'mock-slack-' + Date.now(), type: 'SLACK', label, isActive: true }));
   }
-
-  async requestIntegration(userId: string, sourceName: string, message?: string) {
-    this.logger.log(`User ${userId} requested new integration source: ${sourceName}. Message: ${message || 'None'}`);
-    // Simulate recording the request to DB
-    return { success: true, sourceName, status: 'requested' };
-  }
 }
 

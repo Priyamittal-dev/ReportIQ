@@ -88,4 +88,10 @@ export class IntegrationsController {
   disconnect(@Param('id') id: string, @Req() req: any) {
     return this.integrationsService.disconnect(id, req.user.id);
   }
+
+  @Post('request')
+  @ApiOperation({ summary: 'Request a new integration source' })
+  requestIntegration(@Body() body: { sourceName: string; message?: string }, @Req() req: any) {
+    return this.integrationsService.requestIntegration(req.user.id, body.sourceName, body.message);
+  }
 }

@@ -2,10 +2,24 @@
 import { useState, useEffect } from 'react';
 import { Plug, BarChart, MessageCircle, Globe, CheckCircle, Search, Mail, ShoppingCart, DollarSign, PenTool, Layout, Video } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import Modal from '@/components/Modal';
 
 export default function IntegrationsPage() {
   const [integrations, setIntegrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal State
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    type: 'alert' | 'shopify' | 'linkedin' | 'slack' | 'request';
+    title: string;
+    message?: string;
+    value?: string;
+    placeholder?: string;
+    onSubmit?: (val: string) => void;
+  }>({ isOpen: false, type: 'alert', title: '' });
+
+  const closeModal = () => setModalConfig(prev => ({ ...prev, isOpen: false }));
 
   useEffect(() => {
     const fetchIntegrations = async () => {
@@ -53,7 +67,7 @@ export default function IntegrationsPage() {
 
   const handleConnect = async (id: string) => {
     if (id === 'ga4') {
-      alert('In a real app, this would trigger the Google OAuth flow for Analytics access.');
+      setModalConfig({ isOpen: true, type: 'alert', title: 'Connect GA4', message: 'In a real app, this would trigger the Google OAuth flow for Analytics access.' });
     } else if (id === 'gads') {
       try {
         const res = await apiFetch('/api/integrations/google-ads/auth');
@@ -71,58 +85,79 @@ export default function IntegrationsPage() {
         console.error(err);
       }
     } else if (id === 'shopify') {
-      const store = prompt('Enter your Shopify Store domain (e.g. your-store.myshopify.com):', 'my-client-store.myshopify.com');
-      if (store) {
-        try {
-          const res = await apiFetch('/api/integrations/shopify', {
-            method: 'POST',
-            body: JSON.stringify({ shopDomain: store, accessToken: 'shpat_live_token_verified' })
-          });
-          if (res.ok) {
-            const newItem = await res.json();
-            setIntegrations(prev => [...prev, newItem]);
-            alert(`Shopify store ${store} connected successfully!`);
+      setModalConfig({
+        isOpen: true,
+        type: 'shopify',
+        title: 'Connect Shopify',
+        message: 'Enter your Shopify Store domain:',
+        placeholder: 'my-client-store.myshopify.com',
+        value: 'my-client-store.myshopify.com',
+        onSubmit: async (store) => {
+          try {
+            const res = await apiFetch('/api/integrations/shopify', {
+              method: 'POST',
+              body: JSON.stringify({ shopDomain: store, accessToken: 'shpat_live_token_verified' })
+            });
+            if (res.ok) {
+              const newItem = await res.json();
+              setIntegrations(prev => [...prev, newItem]);
+              setModalConfig({ isOpen: true, type: 'alert', title: 'Success', message: `Shopify store ${store} connected successfully!` });
+            }
+          } catch (e) {
+            console.error(e);
           }
-        } catch (e) {
-          console.error(e);
         }
-      }
+      });
     } else if (id === 'linkedin') {
-      const account = prompt('Enter your LinkedIn Ad Account ID (e.g. 508492011):', '508492011');
-      if (account) {
-        try {
-          const res = await apiFetch('/api/integrations/linkedin-ads', {
-            method: 'POST',
-            body: JSON.stringify({ accountId: account })
-          });
-          if (res.ok) {
-            const newItem = await res.json();
-            setIntegrations(prev => [...prev, newItem]);
-            alert(`LinkedIn Ad Account ${account} connected!`);
+      setModalConfig({
+        isOpen: true,
+        type: 'linkedin',
+        title: 'Connect LinkedIn Ads',
+        message: 'Enter your LinkedIn Ad Account ID:',
+        placeholder: 'e.g. 508492011',
+        value: '508492011',
+        onSubmit: async (account) => {
+          try {
+            const res = await apiFetch('/api/integrations/linkedin-ads', {
+              method: 'POST',
+              body: JSON.stringify({ accountId: account })
+            });
+            if (res.ok) {
+              const newItem = await res.json();
+              setIntegrations(prev => [...prev, newItem]);
+              setModalConfig({ isOpen: true, type: 'alert', title: 'Success', message: `LinkedIn Ad Account ${account} connected!` });
+            }
+          } catch (e) {
+            console.error(e);
           }
-        } catch (e) {
-          console.error(e);
         }
-      }
+      });
     } else if (id === 'slack') {
-      const webhook = prompt('Enter your Slack Incoming Webhook URL:', 'https://hooks.slack.com/services/T00/B00/X00');
-      if (webhook) {
-        try {
-          const res = await apiFetch('/api/integrations/slack', {
-            method: 'POST',
-            body: JSON.stringify({ webhookUrl: webhook, channelName: '#client-reports' })
-          });
-          if (res.ok) {
-            const newItem = await res.json();
-            setIntegrations(prev => [...prev, newItem]);
-            alert('Slack notifications channel connected!');
+      setModalConfig({
+        isOpen: true,
+        type: 'slack',
+        title: 'Connect Slack',
+        message: 'Enter your Slack Incoming Webhook URL:',
+        placeholder: 'https://hooks.slack.com/services/...',
+        value: 'https://hooks.slack.com/services/T00/B00/X00',
+        onSubmit: async (webhook) => {
+          try {
+            const res = await apiFetch('/api/integrations/slack', {
+              method: 'POST',
+              body: JSON.stringify({ webhookUrl: webhook, channelName: '#client-reports' })
+            });
+            if (res.ok) {
+              const newItem = await res.json();
+              setIntegrations(prev => [...prev, newItem]);
+              setModalConfig({ isOpen: true, type: 'alert', title: 'Success', message: 'Slack notifications channel connected!' });
+            }
+          } catch (e) {
+            console.error(e);
           }
-        } catch (e) {
-          console.error(e);
         }
-      }
+      });
     } else {
-      alert(`${id.toUpperCase()} connector initialized in sandbox mode.`);
+      setModalConfig({ isOpen: true, type: 'alert', title: 'Sandbox Mode', message: `${id.toUpperCase()} connector initialized in sandbox mode.` });
     }
   };
 
@@ -212,10 +247,72 @@ export default function IntegrationsPage() {
               <h3 style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Need another integration?</h3>
               <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>We're constantly adding new data sources. Let us know what you need.</p>
             </div>
-            <button className="btn btn-secondary" style={{ marginLeft: 'auto' }}>Request Source</button>
+            <button 
+              className="btn btn-secondary" 
+              style={{ marginLeft: 'auto' }}
+              onClick={() => {
+                setModalConfig({
+                  isOpen: true,
+                  type: 'request',
+                  title: 'Request New Data Source',
+                  message: 'What integration do you need?',
+                  placeholder: 'e.g., Salesforce, HubSpot, Mailchimp',
+                  value: '',
+                  onSubmit: async (val) => {
+                    try {
+                      await apiFetch('/api/integrations/request', {
+                        method: 'POST',
+                        body: JSON.stringify({ sourceName: val })
+                      });
+                      setModalConfig({ isOpen: true, type: 'alert', title: 'Request Sent', message: `Thank you! We've recorded your request for ${val}.` });
+                    } catch (e) {
+                      console.error(e);
+                      setModalConfig({ isOpen: true, type: 'alert', title: 'Error', message: 'Failed to send request. Please try again.' });
+                    }
+                  }
+                });
+              }}
+            >
+              Request Source
+            </button>
           </div>
         </div>
       </div>
+
+      <Modal isOpen={modalConfig.isOpen} onClose={closeModal} title={modalConfig.title}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <p style={{ color: 'var(--text-secondary)' }}>{modalConfig.message}</p>
+          
+          {modalConfig.type !== 'alert' && (
+            <input 
+              type="text" 
+              className="form-input" 
+              placeholder={modalConfig.placeholder}
+              defaultValue={modalConfig.value}
+              onChange={(e) => setModalConfig(prev => ({ ...prev, value: e.target.value }))}
+              autoFocus
+            />
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
+            <button className="btn btn-secondary" onClick={closeModal}>
+              {modalConfig.type === 'alert' ? 'Close' : 'Cancel'}
+            </button>
+            {modalConfig.type !== 'alert' && (
+              <button 
+                className="btn btn-primary"
+                onClick={() => {
+                  if (modalConfig.onSubmit && modalConfig.value) {
+                    modalConfig.onSubmit(modalConfig.value);
+                  }
+                }}
+              >
+                Submit
+              </button>
+            )}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

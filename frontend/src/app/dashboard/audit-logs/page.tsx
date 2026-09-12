@@ -1,14 +1,22 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { FileText, Search, Filter } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
 
 export default function AuditLogsPage() {
   const [logs, setLogs] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/audit-logs`)
+    apiFetch('/api/audit-logs')
       .then(res => res.json())
-      .then(data => setLogs(data))
+      .then(data => {
+        if (Array.isArray(data)) {
+          setLogs(data);
+        } else {
+          console.error('Expected array of logs, got:', data);
+          setLogs([]);
+        }
+      })
       .catch(console.error);
   }, []);
 

@@ -117,6 +117,20 @@ export class ReportsController {
     );
   }
 
+  @Post('magic-import')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), AgencyGuard)
+  @ApiOperation({ summary: 'Generate dynamic dashboard from raw CSV import' })
+  async magicImport(
+    @Body() body: { csvText: string },
+    @Req() req: any,
+  ) {
+    if (!body.csvText) {
+      return { message: 'No CSV data provided' };
+    }
+    return this.reportsService.processMagicImport(req.user.id, body.csvText);
+  }
+
   @Get(':id/slides')
   @ApiOperation({ summary: 'Get interactive presentation slide deck for report' })
   getSlides(@Param('id') id: string) {

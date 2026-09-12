@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, FileText, Plug, Settings,
-  LogOut, BarChart3, Zap, CreditCard, Shield, Code
+  LogOut, BarChart3, Zap, CreditCard, Shield, Code, Wand2
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import GuidedTour from '@/components/GuidedTour';
@@ -138,6 +138,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Link href="/dashboard/reports/generate" className="sidebar-nav-item tour-quick-actions" style={{ background: 'rgba(138,43,226,0.08)', border: '1px solid rgba(138,43,226,0.15)', color: 'var(--accent)' }}>
             <Zap size={16} />
             {t('nav.generate_report')}
+          </Link>
+          <Link href="/dashboard/magic-import" className="sidebar-nav-item" style={{ background: 'rgba(0,229,255,0.08)', border: '1px solid rgba(0,229,255,0.15)', color: '#00e5ff', marginTop: '8px' }}>
+            <Wand2 size={16} />
+            ✨ Magic Import
           </Link>
         </nav>
 

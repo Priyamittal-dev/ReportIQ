@@ -213,6 +213,11 @@ export class ReportsService {
     return report;
   }
 
+  async processMagicImport(userId: string, csvText: string) {
+    // Generate dashboard JSON from the CSV text using AI Service
+    return this.aiService.generateDashboardFromCsv(csvText);
+  }
+
   async updateStatus(id: string, status: string) {
     return this.prisma.report
       .update({ where: { id }, data: { status: status as any } })

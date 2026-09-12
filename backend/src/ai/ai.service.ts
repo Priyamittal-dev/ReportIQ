@@ -198,6 +198,106 @@ Return JSON format:
     };
   }
 
+  async generateDashboardFromCsv(csvText: string): Promise<any> {
+    if (!this.openai || this.config.get('USE_MOCK_AI') === 'true') {
+      return this.generateMockDashboardFromCsv();
+    }
+
+    try {
+      const prompt = `
+You are an expert data analyst. I am providing you with raw CSV data.
+Analyze it and generate a JSON response with a summary, insights, and configurations for Recharts charts.
+Limit your analysis to the data provided. If the data is too large, it may have been truncated.
+
+CSV Data:
+${csvText}
+
+Instructions:
+1. Provide a short 2-3 sentence summary of the data.
+2. Provide exactly 3 key actionable insights.
+3. Provide a configuration for 3 to 4 charts. Allowed chart types are: "bar", "line", "pie", "area".
+4. For each chart, provide "title", "type", "dataKey" (the key for the y-axis values), "xAxisKey" (the key for the x-axis labels), and the "data" array containing the actual data points extracted or aggregated from the CSV.
+
+Return STRICTLY in JSON format matching this schema:
+{
+  "summary": "...",
+  "insights": ["...", "..."],
+  "charts": [
+    {
+      "title": "...",
+      "type": "bar",
+      "dataKey": "value",
+      "xAxisKey": "name",
+      "data": [{ "name": "Category A", "value": 100 }]
+    }
+  ]
+}`;
+
+      const response = await this.openai.chat.completions.create({
+        model: this.config.get('OPENAI_MODEL', 'gpt-4o'),
+        messages: [{ role: 'user', content: prompt }],
+        response_format: { type: 'json_object' },
+        max_tokens: 1500,
+      });
+
+      return JSON.parse(response.choices[0].message.content ?? '{}');
+    } catch (error) {
+      this.logger.error('OpenAI generate dashboard error: ' + error.message);
+      return this.generateMockDashboardFromCsv();
+    }
+  }
+
+  private generateMockDashboardFromCsv(): any {
+    return {
+      summary: "The uploaded data shows strong performance across multiple segments over the analyzed period. Revenue has steadily increased, with Q3 showing the highest growth. Customer acquisition costs have remained stable.",
+      insights: [
+        "Product Category A is driving 45% of total revenue, indicating strong market fit.",
+        "There is a noticeable dip in sales during the second week of the month, suggesting a need for mid-month promotional campaigns.",
+        "Organic traffic converts at a 15% higher rate than paid traffic, highlighting the value of current SEO efforts."
+      ],
+      charts: [
+        {
+          title: "Monthly Revenue Trend",
+          type: "area",
+          dataKey: "revenue",
+          xAxisKey: "month",
+          data: [
+            { month: "Jan", revenue: 4000 },
+            { month: "Feb", revenue: 3000 },
+            { month: "Mar", revenue: 5000 },
+            { month: "Apr", revenue: 4500 },
+            { month: "May", revenue: 6000 },
+            { month: "Jun", revenue: 7000 }
+          ]
+        },
+        {
+          title: "Sales by Category",
+          type: "bar",
+          dataKey: "sales",
+          xAxisKey: "category",
+          data: [
+            { category: "Electronics", sales: 8500 },
+            { category: "Clothing", sales: 4200 },
+            { category: "Home", sales: 3100 },
+            { category: "Books", sales: 1500 }
+          ]
+        },
+        {
+          title: "Customer Acquisition Source",
+          type: "pie",
+          dataKey: "value",
+          xAxisKey: "name",
+          data: [
+            { name: "Organic Search", value: 400 },
+            { name: "Direct", value: 300 },
+            { name: "Social Media", value: 200 },
+            { name: "Referral", value: 100 }
+          ]
+        }
+      ]
+    };
+  }
+
   private localChat(message: string): string {
     const msg = message.toLowerCase();
 
